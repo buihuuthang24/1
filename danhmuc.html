@@ -386,8 +386,6 @@
 </head>
 <body style="opacity:1;transition:opacity 1.2s cubic-bezier(.4,0,.2,1);">
 
-    <!-- Header sẽ được nhúng tự động -->
-    <div id="navbar-placeholder" class="navbar-header"></div>
     <script>
       document.addEventListener('DOMContentLoaded', function() {
         fetch('navbar.html')
@@ -409,6 +407,19 @@
           });
       });
     </script>
+    <header class="header">
+        <div class="nav-container">
+            <a href="home.html" class="logo">🎓 LHU Learning</a>
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="home.html"><i class="fas fa-home"></i> Trang chủ</a></li>
+                    <li><a href="danhmuc.html" class="active"><i class="fas fa-flask"></i> Danh mục</a></li>
+                    <li><a href="tainguyen_page.html"><i class="fas fa-book"></i> Tài nguyên</a></li>
+                    <li><a href="about_us_page.html"><i class="fas fa-info-circle"></i> Về chúng tôi</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
     <div class="container" style="padding-top:110px">
         <div class="danhmuc-header">
             <h1>🎯 Danh Mục Mô Phỏng</h1>

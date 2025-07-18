@@ -496,17 +496,14 @@
     </style>
 </head>
 <body>
-    <!-- Header -->
+    <!-- Header (đồng bộ với các tab khác) -->
     <header class="header">
         <div class="nav-container">
-            <div class="logo">
-                <i class="fas fa-graduation-cap"></i>
-                LHU Learning
-            </div>
+            <a href="home.html" class="logo">🎓 LHU Learning</a>
             <nav>
                 <ul class="nav-menu">
                     <li><a href="home.html"><i class="fas fa-home"></i> Trang chủ</a></li>
-                    <li><a href="danhmuc.html"><i class="fas fa-flask"></i> Mô phỏng</a></li>
+                    <li><a href="danhmuc.html"><i class="fas fa-flask"></i> Danh mục</a></li>
                     <li><a href="tainguyen_page.html" class="active"><i class="fas fa-book"></i> Tài nguyên</a></li>
                     <li><a href="about_us_page.html"><i class="fas fa-info-circle"></i> Về chúng tôi</a></li>
                 </ul>
@@ -772,3 +769,87 @@
                             <a href="#" class="action-btn btn-primary">
                                 <i class="fas fa-play"></i> Xem video
                             </a>
+                            <button class="action-btn btn-secondary" onclick="downloadResource('pcb-masterclass')">
+                                <i class="fas fa-download"></i> Tải về
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resource 6 -->
+                <div class="resource-card" data-category="books">
+                    <div class="resource-thumbnail">
+                        <div class="resource-icon">
+                            <i class="fas fa-book-open"></i>
+                        </div>
+                    </div>
+                    <div class="resource-content">
+                        <h3 class="resource-title">Digital Design Book</h3>
+                        <div class="resource-meta">
+                            <span><i class="fas fa-user"></i> Dr. Trần Văn E</span>
+                            <span><i class="fas fa-calendar"></i> 20/06/2024</span>
+                            <span><i class="fas fa-star"></i> 4.7/5</span>
+                        </div>
+                        <p class="resource-description">Sách thiết kế số với Verilog và VHDL, bao gồm lý thuyết và bài tập thực hành.</p>
+                        <div class="resource-tags">
+                            <span class="resource-tag">Digital Design</span>
+                            <span class="resource-tag">Verilog</span>
+                            <span class="resource-tag">VHDL</span>
+                        </div>
+                        <div class="resource-actions">
+                            <a href="#" class="action-btn btn-primary">
+                                <i class="fas fa-book"></i> Đọc sách
+                            </a>
+                            <button class="action-btn btn-secondary" onclick="addToReadingList('digital-design-book')">
+                                <i class="fas fa-plus"></i> Thêm vào danh sách
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Statistics Section -->
+        <section class="stats-section">
+            <h2 class="section-title">📊 Thống kê Tài nguyên</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-number">500+</span>
+                    <span class="stat-label">Tài nguyên</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">300+</span>
+                    <span class="stat-label">Người dùng</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">150+</span>
+                    <span class="stat-label">Khóa học</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number">200+</span>
+                    <span class="stat-label">Bài viết</span>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2024 LHU Learning. All rights reserved.</p>
+        <div>
+            <a href="https://www.facebook.com/LHU.edu.vn" target="_blank" class="social-icon">
+                <i class="fab fa-facebook-f"></i>
+            </a>
+            <a href="https://twitter.com/LHU" target="_blank" class="social-icon">
+                <i class="fab fa-twitter"></i>
+            </a>
+            <a href="https://www.linkedin.com/school/lhu.edu.vn" target="_blank" class="social-icon">
+                <i class="fab fa-linkedin-in"></i>
+            </a>
+        </div>
+    </footer>
+
+    <!-- Nhúng chatbot widget -->
+    <script src="chatbot.js"></script>
+</body>
+</html>

@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESP32 WiFi & Bluetooth Lab</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .header-title {
+            font-size: 3em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header-subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .main-nav {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .nav-btn {
+            background: rgba(255,255,255,0.2);
+            border: 2px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-btn:hover, .nav-btn.active {
+            background: rgba(255,255,255,0.3);
+            border-color: rgba(255,255,255,0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .content-section {
+            display: none;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+
+        .content-section.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-title {
+            color: #4a5568;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 2px;
+        }
+
+        .theory-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .theory-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 15px;
+            padding: 25px;
+            border-left: 5px solid #667eea;
+            transition: transform 0.3s ease;
+        }
+
+        .theory-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .theory-card h3 {
+            color: #2d3748;
+            margin-bottom: 15px;
+            font-size: 1.4em;
+        }
+
+        .simulation-container {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            border: 2px solid #e9ecef;
+        }
+
+        .esp32-board {
+            width: 300px;
+            height: 200px;
+            background: #2d5a2d;
+            border-radius: 10px;
+            margin: 20px auto;
+            position: relative;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .esp32-chip {
+            width: 80px;
+            height: 40px;
+            background: #1a1a1a;
+            border-radius: 5px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .led-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            position: absolute;
+            transition: all 0.3s ease;
+        }
+
+        .wifi-led {
+            background: #ff4757;
+            top: 20px;
+            left: 20px;
+        }
+
+        .bluetooth-led {
+            background: #5352ed;
+            top: 20px;
+            right: 20px;
+        }
+
+        .led-indicator.active {
+            background: #2ed573;
+            box-shadow: 0 0 15px rgba(46, 213, 115, 0.7);
+        }
+
+        .signal-waves {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
+
+        .wave {
+            position: absolute;
+            border: 2px solid #667eea;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+            opacity: 0;
+        }
+
+        .wave:nth-child(1) { animation-delay: 0s; }
+        .wave:nth-child(2) { animation-delay: 0.5s; }
+        .wave:nth-child(3) { animation-delay: 1s; }
+
+        @keyframes pulse {
+            0% { transform: scale(0); opacity: 1; }
+            100% { transform: scale(3); opacity: 0; }
+        }
+
+        .control-panel {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .control-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .control-btn:active {
+            transform: translateY(0);
+        }
+
+        .status-display {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            margin: 20px 0;
+            min-height: 150px;
+            overflow-y: auto;
+        }
+
+        .exercise-container {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            border-left: 5px solid #28a745;
+        }
+
+        .exercise-title {
+            color: #28a745;
+            font-size: 1.5em;
+            margin-bottom: 15px;
+        }
+
+        .code-editor {
+            background: #1a1a1a;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            line-height: 1.5;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+
+        .run-code-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .run-code-btn:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
+        .progress-bar {
+            background: #e9ecef;
+            border-radius: 10px;
+            height: 8px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #28a745, #20c997);
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border: 1px solid #bbdefb;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            position: relative;
+        }
+
+        .info-box::before {
+            content: "💡";
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            font-size: 1.2em;
+        }
+
+        .info-box-content {
+            margin-left: 40px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .protocol-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .protocol-tab {
+            background: #e9ecef;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .protocol-tab.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .frequency-display {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+        }
+
+        .frequency-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            min-width: 150px;
+        }
+
+        .frequency-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .frequency-label {
+            color: #6c757d;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .main-nav {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .theory-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .control-panel {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .esp32-board {
+                width: 250px;
+                height: 150px;
+            }
+            
+            .header-title {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 class="header-title">ESP32 WiFi & Bluetooth Lab</h1>
+            <p class="header-subtitle">Học tập tương tác về giao thức không dây với mô phỏng thực tế</p>
+        </header>
+
+        <nav class="main-nav">
+            <button class="nav-btn active" onclick="showSection('theory')">Lý Thuyết</button>
+            <button class="nav-btn" onclick="showSection('simulation')">Mô Phỏng</button>
+            <button class="nav-btn" onclick="showSection('exercises')">Bài Tập</button>
+            <button class="nav-btn" onclick="showSection('projects')">Dự Án</button>
+        </nav>
+
+        <!-- Theory Section -->
+        <div id="theory" class="content-section active">
+            <h2 class="section-title">Lý Thuyết Cơ Bản</h2>
+            
+            <div class="protocol-tabs">
+                <button class="protocol-tab active" onclick="showProtocol('wifi')">WiFi</button>
+                <button class="protocol-tab" onclick="showProtocol('bluetooth')">Bluetooth</button>
+            </div>
+
+            <div id="wifi-theory" class="tab-content active">
+                <div class="frequency-display">
+                    <div class="frequency-card">
+                        <div class="frequency-value">2.4</div>
+                        <div class="frequency-label">GHz</div>
+                    </div>
+                    <div class="frequency-card">
+                        <div class="frequency-value">5.0</div>
+                        <div class="frequency-label">GHz</div>
+                    </div>
+                    <div class="frequency-card">
+                        <div class="frequency-value">150</div>
+                        <div class="frequency-label">Mbps</div>
+                    </div>
+                </div>
+
+                <div class="theory-grid">
+                    <div class="theory-card">
+                        <h3>🌐 WiFi Protocol</h3>
+                        <p>WiFi (802.11) là giao thức mạng không dây cho phép các thiết bị kết nối với Internet. ESP32 hỗ trợ WiFi 802.11 b/g/n với tốc độ lên đến 150 Mbps.</p>
+                        <div class="info-box">
+                            <div class="info-box-content">
+                                <strong>Tần số:</strong> 2.4 GHz (802.11n)<br>
+                                <strong>Phạm vi:</strong> 30-50m trong nhà<br>
+                                <strong>Công suất:</strong> 20 dBm (100mW)
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="theory-card">
+                        <h3>🔗 Kết Nối WiFi</h3>
+                        <p>ESP32 có thể hoạt động như Station (STA) để kết nối với router, hoặc Access Point (AP) để tạo mạng WiFi riêng.</p>
+                        <div class="info-box">
+                            <div class="info-box-content">
+                                <strong>STA Mode:</strong> Kết nối với WiFi hiện có<br>
+                                <strong>AP Mode:</strong> Tạo hotspot riêng<br>
+                                <strong>STA+AP:</strong> Kết hợp cả hai chế độ
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="theory-card">
+                        <h3>🔐 Bảo Mật WiFi</h3>
+                        <p>ESP32 hỗ trợ các giao thức bảo mật WiFi hiện đại như WPA2 và WPA3 để đảm bảo kết nối an toàn.</p>
+                        <div class="info-box">
+                            <div class="info-box-content">
+                                <strong>WPA2:</strong> Mã hóa AES 256-bit<br>
+                                <strong>WPA3:</strong> Bảo mật nâng cao hơn<br>
+                                <strong>Open:</strong> Không mã hóa (không khuyến khích)
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="theory-card">
+                        <h3>📡 Antenna và Tín Hiệu</h3>
+                        <p>ESP32 có antenna PCB tích hợp hoặc có thể sử dụng antenna ngoài để tăng cường tín hiệu.</p>
+                        <div class="info-box">
+                            <div class="info-box-content">
+                                <strong>RSSI:</strong> Cường độ tín hiệu nhận<br>
+                                <strong>dBm:</strong> Đơn vị đo công suất<br>
+                                <strong>SNR:</strong> Tỷ lệ tín hiệu/nhiễu
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="bluetooth-theory" class="tab-content">
+                <div class="frequency-display">
+                    <div class="frequency-card">
+                        <div class="frequency-value">2.4</div>
+                        <div class="frequency-label">GHz</div>
+                    </div>
+                    <div class="frequency-card">
+                        <div class="frequency-value">10</div>
+                        <div class="frequency-label">m Range</div>
+                    </div>
+                    <div class="frequency-card">
+                        <div class="frequency-value">1</div>
+                        <div class="frequency-label">Mbps</div>
+                    </div>
+                </div>
+
+                <div class="theory-grid">
+                    <div class="theory-card">
+                        <h3>📱 Bluetooth Classic</h3>
+                        <p>Bluetooth Classic (BR/EDR) dùng cho các ứng dụng cần băng thông cao như truyền âm thanh và dữ liệu lớn.</p>
+                        <div class="info-box">
+                            <div class="info-box-content">
+                                <strong>Tốc độ:</strong> 1-3 Mbps<br>
+                                <strong>Phạm vi:</strong> 10m (Class 2)<br>
+                                <strong>Công suất:</strong> 2.5 mW
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="theory-card">
+                        <h3>🔋 Bluetooth Low Energy</h3>
+                        <p>BLE (Bluetooth 4.0+) được thiết kế cho các thiết bị IoT cần tiết kiệm năng lượng với thời gian hoạt động dài.</p>
+                        <div class="info-box">
+                            <div class="info-box-content">
+                                <strong>Công suất:</strong> Rất thấp (µW)<br>
+                                <strong>Kết nối:</strong> Nhanh chóng<br>
+                                <strong>Ứng dụng:</strong> Sensor, beacon
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="theory-card">
+                        <h3>🎛️ GATT & Services</h3>
+                        <p>GATT (Generic Attribute Profile) định nghĩa cách BLE devices trao đổi dữ liệu thông qua Services và Characteristics.</p>
+                        <div class="info-box">
+                            <div class="info-box-content">
+                                <strong>Service:</strong> Nhóm các chức năng<br>
+                                <strong>Characteristic:</strong> Điểm dữ liệu<br>
+                                <strong>UUID:</strong> Định danh duy nhất
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="theory-card">
+                        <h3>🔄 Pairing & Security</h3>
+                        <p>Bluetooth sử dụng nhiều phương thức ghép nối và mã hóa để đảm bảo kết nối an toàn.</p>
+                        <div class="info-box">
+                            <div class="info-box-content">
+                                <strong>PIN:</strong> Mã số đơn giản<br>
+                                <strong>SSP:</strong> Secure Simple Pairing<br>
+                                <strong>AES:</strong> Mã hóa 128-bit
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Simulation Section -->
+        <div id="simulation" class="content-section">
+            <h2 class="section-title">Mô Phỏng Tương Tác</h2>
+            
+            <div class="simulation-container">
+                <h3 style="text-align: center; margin-bottom: 20px;">ESP32 Development Board</h3>
+                
+                <div class="esp32-board">
+                    <div class="led-indicator wifi-led" id="wifi-led"></div>
+                    <div class="led-indicator bluetooth-led" id="bluetooth-led"></div>
+                    <div class="esp32-chip">ESP32</div>
+                    <div class="signal-waves" id="signal-waves"></div>
+                </div>
+
+                <div class="control-panel">
+                    <button class="control-btn" onclick="toggleWiFi()">Toggle WiFi</button>
+                    <button class="control-btn" onclick="toggleBluetooth()">Toggle Bluetooth</button>
+                    <button class="control-btn" onclick="scanNetworks()">Scan Networks</button>
+                    <button class="control-btn" onclick="startBeacon()">Start Beacon</button>
+                    <button class="control-btn" onclick="clearConsole()">Clear Console</button>
+                </div>
+
+                <div class="status-display" id="console">
+                    <div style="color: #4CAF50;">[ESP32] System initialized</div>
+                    <div style="color: #2196F3;">[WiFi] Module ready</div>
+                    <div style="color: #9C27B0;">[Bluetooth] Module ready</div>
+                    <div style="color: #FF9800;">[System] Waiting for commands...</div>
+                </div>
+
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Exercises Section -->
+        <div id="exercises" class="content-section">
+            <h2 class="section-title">Bài Tập Thực Hành</h2>
+            
+            <div class="exercise-container">
+                <h3 class="exercise-title">Bài 1: Kết nối WiFi cơ bản</h3>
+                <p>Viết code để ESP32 kết nối với WiFi router và hiển thị địa chỉ IP.</p>
+                
+                <div class="code-editor" contenteditable="true" id="exercise1-code">
+#include "WiFi.h"
+
+const char* ssid = "YourWiFiName";
+const char* password = "YourPassword";
+
+void setup() {
+  Serial.begin(115200);
+  
+  // Bắt đầu kết nối WiFi
+  WiFi.begin(ssid, password);
+  
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(1000);
+    Serial.println("Connecting to WiFi...");
+  }
+  
+  Serial.println("Connected to WiFi!");
+  Serial.print("IP address: ");
+  Serial.println(WiFi.localIP());
+}
+
+void loop() {
+  // Code chính ở đây
+}
+                </div>
+                
+                <button class="run-code-btn" onclick="runCode('exercise1')">Chạy Code</button>
+                <div class="status-display" id="exercise1-output"></div>
+            </div>
+
+            <div class="exercise-container">
+                <h3 class="exercise-title">Bài 2: Bluetooth Serial Communication</h3>
+                <p>Tạo kết nối Bluetooth để nhận và gửi dữ liệu từ điện thoại.</p>
+                
+                <div class="code-editor" contenteditable="true" id="exercise2-code">
+#include "BluetoothSerial.h"
+
+BluetoothSerial SerialBT;
+
+void setup() {
+  Serial.begin(115200);
+  SerialBT.begin("ESP32test"); // Tên Bluetooth device
+  Serial.println("The device started, now you can pair it with bluetooth!");
+}
+
+void loop() {
+  if (Serial.available()) {
+    SerialBT.write(Serial.read());
+  }
+  if (SerialBT.available()) {
+    Serial.write(SerialBT.read());
+  }
+  delay(20);
+}
+                </div>
+                
+                <button class="run-code-btn" onclick="runCode('exercise2')">Chạy Code</button>
+                <div class="status-display" id="exercise2-output"></div>
+            </div>
+
+            <div class="exercise-container">
+                <h3 class="exercise-title">Bài 3: WiFi Access Point</h3>
+                <p>Tạo ESP32 thành một Access Point để các thiết bị khác có thể kết nối.</p>
+                
+                <div class="code-editor" contenteditable="true" id="exercise3-code">
+#include "WiFi.h"
+#include "WebServer.h"
+
+const char* ssid = "ESP32-AP";
+const char* password = "123456789";
+
+WebServer server(80);
+
+void setup() {
+  Serial.begin(115200);
+  
+  // Tạo Access Point
+  WiFi.softAP(ssid, password);
+  
+  IPAddress IP = WiFi.softAPIP();
+  Serial.print("AP IP address: ");
+  Serial.println(IP);
+  
+  server.on("/", handleRoot);
+  server.begin();
+}
+
+void handleRoot() {
+  server.send(200, "text/html", "<h1>ESP32 Access Point</h1>");
+}
+
+void loop() {
+  server.handleClient();
+}
+                </div>
+                
+                <button class="run-code-btn" onclick="runCode('exercise3')">Chạy Code</button>
+                <div class="status-display" id="exercise3-output"></div>
+            </div>
+        </div>
+
+        <!-- Projects Section -->
+        <div id="projects" class="content-section">
+            <h2 class="section-title">Dự Án Thực Tế</h2>
+            
+            <div class="theory-grid">
+                <div class="theory-card">
+                    <h3>🏠 Smart Home Controller</h3>
+                    <p>Xây dựng hệ thống điều khiển nhà thông minh sử dụng WiFi để kết nối với cloud và Bluetooth để điều khiển từ điện thoại.</p>
+                    <div class="info-box">
+                        <div class="info-box-content">
+                            <strong>Tính năng:</strong> Điều khiển đèn, quạt, cảm biến<br>
+                            <strong>Giao thức:</strong> WiFi + Bluetooth<br>
+                            <strong>Platform:</strong> Firebase, Blynk
+                        </div>
+                    </div>
+                </div>
+
+                <div class="theory-card">
+                    <h3>📡 IoT Weather Station</h3>
+                    <p>Trạm thời tiết IoT thu thập dữ liệu từ cảm biến và gửi lên cloud qua WiFi, hiển thị dữ liệu real-time.</p>
+                    <div class="info-box">
+                        <div class="info-box-content">
+                            <strong>Cảm biến:</strong> DHT22, BMP280<br>
+                            <strong>Cloud:</strong> ThingSpeak, AWS IoT<br>
+                            <strong>Hiển thị:</strong> Web dashboard
+                        </div>
+                    </div>
+                </div>
+
+                <div class="theory-card">
+                    <h3>🚗 Bluetooth Car Controller</h3>
+                    <p>Xe robot điều khiển qua Bluetooth với khả năng tự động tránh vật cản và điều khiển từ xa qua smartphone.</p>
+                    <div class="info-box">
+                        <div class="info-box-content">
+                            <strong>Tính năng:</strong> Điều khiển di chuyển<br>
+                            <strong>Cảm biến:</strong> Ultrasonic, Camera<br>
+                            <strong>App:</strong> Android/iOS
+                        </div>
+                    </div>
+                </div>
+
+                <div class="theory-card">
+                    <h3>🔔 Smart Security System</h3>
+                    <p>Hệ thống bảo mật thông minh sử dụng WiFi để gửi thông báo và Bluetooth để điều khiển cục bộ.</p>
+                    <div class="info-box">
+                        <div class="info-box-content">
+                            <strong>Tính năng:</strong> Motion detection, Camera<br>
+                            <strong>Thông báo:</strong> Email, SMS, Push notification<br>
+                            <strong>Lưu trữ:</strong> SD card, Cloud storage
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let wifiEnabled = false;
+        let bluetoothEnabled = false;
+        let progress = 0;
+
+        function showSection(sectionId) {
+            // Hide all sections
+            const sections = document.querySelectorAll('.content-section');
+            sections.forEach(section => section.classList.remove('active'));
+            
+            // Show selected section
+            document.getElementById(sectionId).classList.add('active');
+            
+            // Update nav buttons
+            const navButtons = document.querySelectorAll('.nav-btn');
+            navButtons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        function showProtocol(protocol) {
+            // Hide all protocol content
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => content.classList.remove('active'));
+            
+            // Show selected protocol
+            document.getElementById(protocol + '-theory').classList.add('active');
+            
+            // Update tab buttons
+            const tabs = document.querySelectorAll('.protocol-tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        function toggleWiFi() {
+            wifiEnabled = !wifiEnabled;
+            const wifiLed = document.getElementById('wifi-led');
+            const console = document.getElementById('console');
+            
+            if (wifiEnabled) {
+                wifiLed.classList.add('active');
+                addConsoleMessage('[WiFi] Module enabled - Searching for networks...', '#4CAF50');
+                createSignalWaves();
+                setTimeout(() => {
+                    addConsoleMessage('[WiFi] Connected to "ESP32_Lab_Network"', '#2196F3');
+                    addConsoleMessage('[WiFi] IP Address: 192.168.1.100', '#2196F3');
+                    updateProgress(30);
+                }, 2000);
+            } else {
+                wifiLed.classList.remove('active');
+                addConsoleMessage('[WiFi] Module disabled', '#F44336');
+                removeSignalWaves();
+                updateProgress(progress - 30);
+            }
+        }
+
+        function toggleBluetooth() {
+            bluetoothEnabled = !bluetoothEnabled;
+            const bluetoothLed = document.getElementById('bluetooth-led');
+            
+            if (bluetoothEnabled) {
+                bluetoothLed.classList.add('active');
+                addConsoleMessage('[Bluetooth] Module enabled - Discoverable as "ESP32_Lab"', '#9C27B0');
+                addConsoleMessage('[Bluetooth] Waiting for connections...', '#9C27B0');
+                updateProgress(progress + 25);
+            } else {
+                bluetoothLed.classList.remove('active');
+                addConsoleMessage('[Bluetooth] Module disabled', '#F44336');
+                updateProgress(progress - 25);
+            }
+        }
+
+        function scanNetworks() {
+            addConsoleMessage('[WiFi] Scanning for networks...', '#FF9800');
+            updateProgress(progress + 10);
+            
+            setTimeout(() => {
+                const networks = [
+                    'ESP32_Lab_Network (-45 dBm)',
+                    'HomeWiFi (-67 dBm)',
+                    'Office_Network (-72 dBm)',
+                    'Guest_WiFi (-80 dBm)'
+                ];
+                
+                addConsoleMessage('[WiFi] Found ' + networks.length + ' networks:', '#4CAF50');
+                networks.forEach(network => {
+                    addConsoleMessage('  → ' + network, '#2196F3');
+                });
+            }, 1500);
+        }
+
+        function startBeacon() {
+            if (bluetoothEnabled) {
+                addConsoleMessage('[Bluetooth] Starting BLE beacon...', '#9C27B0');
+                addConsoleMessage('[Bluetooth] UUID: 12345678-1234-1234-1234-123456789abc', '#9C27B0');
+                addConsoleMessage('[Bluetooth] Broadcasting temperature sensor data', '#9C27B0');
+                updateProgress(progress + 15);
+            } else {
+                addConsoleMessage('[Error] Bluetooth module not enabled!', '#F44336');
+            }
+        }
+
+        function clearConsole() {
+            document.getElementById('console').innerHTML = 
+                '<div style="color: #4CAF50;">[ESP32] System initialized</div>' +
+                '<div style="color: #2196F3;">[WiFi] Module ready</div>' +
+                '<div style="color: #9C27B0;">[Bluetooth] Module ready</div>' +
+                '<div style="color: #FF9800;">[System] Waiting for commands...</div>';
+        }
+
+        function addConsoleMessage(message, color = '#e2e8f0') {
+            const console = document.getElementById('console');
+            const messageDiv = document.createElement('div');
+            messageDiv.style.color = color;
+            messageDiv.textContent = message;
+            console.appendChild(messageDiv);
+            console.scrollTop = console.scrollHeight;
+        }
+
+        function updateProgress(newProgress) {
+            progress = Math.max(0, Math.min(100, newProgress));
+            document.getElementById('progress-fill').style.width = progress + '%';
+        }
+
+        function createSignalWaves() {
+            const signalWaves = document.getElementById('signal-waves');
+            signalWaves.innerHTML = '';
+            
+            for (let i = 0; i < 3; i++) {
+                const wave = document.createElement('div');
+                wave.className = 'wave';
+                wave.style.width = '20px';
+                wave.style.height = '20px';
+                signalWaves.appendChild(wave);
+            }
+        }
+
+        function removeSignalWaves() {
+            document.getElementById('signal-waves').innerHTML = '';
+        }
+
+        function runCode(exerciseId) {
+            const outputDiv = document.getElementById(exerciseId + '-output');
+            outputDiv.innerHTML = '<div style="color: #4CAF50;">[Compiling] Code compilation started...</div>';
+            
+            setTimeout(() => {
+                outputDiv.innerHTML += '<div style="color: #2196F3;">[Upload] Uploading to ESP32...</div>';
+            }, 1000);
+            
+            setTimeout(() => {
+                outputDiv.innerHTML += '<div style="color: #4CAF50;">[Success] Code uploaded successfully!</div>';
+                
+                if (exerciseId === 'exercise1') {
+                    outputDiv.innerHTML += '<div style="color: #FF9800;">[Serial] Connecting to WiFi...</div>';
+                    setTimeout(() => {
+                        outputDiv.innerHTML += '<div style="color: #4CAF50;">[Serial] Connected to WiFi!</div>';
+                        outputDiv.innerHTML += '<div style="color: #2196F3;">[Serial] IP address: 192.168.1.150</div>';
+                    }, 2000);
+                } else if (exerciseId === 'exercise2') {
+                    outputDiv.innerHTML += '<div style="color: #9C27B0;">[Bluetooth] Device started, now you can pair it with bluetooth!</div>';
+                    outputDiv.innerHTML += '<div style="color: #9C27B0;">[Bluetooth] Waiting for connections...</div>';
+                } else if (exerciseId === 'exercise3') {
+                    outputDiv.innerHTML += '<div style="color: #4CAF50;">[AP] Access Point created successfully!</div>';
+                    outputDiv.innerHTML += '<div style="color: #2196F3;">[AP] IP address: 192.168.4.1</div>';
+                    outputDiv.innerHTML += '<div style="color: #FF9800;">[Web] Server started on port 80</div>';
+                }
+            }, 2500);
+        }
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add some initial animation
+            setTimeout(() => {
+                addConsoleMessage('[System] Lab environment ready for experiments', '#4CAF50');
+            }, 1000);
+        });
+
+        // Add keyboard shortcuts
+        document.addEventListener('keydown', function(event) {
+            if (event.key === '1') showSection('theory');
+            if (event.key === '2') showSection('simulation');
+            if (event.key === '3') showSection('exercises');
+            if (event.key === '4') showSection('projects');
+        });
+    </script>
+</body>
+</html>

@@ -188,6 +188,7 @@ function createChatbotWidget() {
 
 // Tự động nhúng widget khi trang load, trừ trang intro (index.html)
 window.addEventListener('DOMContentLoaded', function() {
+  // Chỉ không nhúng widget nếu là intro, còn lại đều nhúng
   const isIntro = window.location.pathname.endsWith('index.html') || window.location.pathname === '/' || window.location.pathname === '';
   if (!isIntro) createChatbotWidget();
 });
