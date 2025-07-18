@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LHU Interactive - Trang chủ</title>
+    <style>
+        /* HEADER DANH MỤC/ABOUT - ĐỒNG BỘ */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+        }
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            text-decoration: none;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .logo::before {
+            content: '🎓';
+            font-size: 2rem;
+        }
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 2.5rem;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem 0;
+            background: none;
+            flex-wrap: nowrap;
+        }
+        .nav-menu a {
+            color: #fff;
+            text-decoration: none;
+            transition: background 0.25s, color 0.25s, box-shadow 0.25s;
+            padding: 0.85rem 2.7rem;
+            border-radius: 32px;
+            position: relative;
+            overflow: hidden;
+            background: rgba(255,255,255,0.18);
+            font-size: 1.18rem;
+            font-weight: 500;
+            text-align: center;
+            min-width: 140px;
+            max-width: 180px;
+            box-sizing: border-box;
+            box-shadow: 0 2px 12px rgba(102,126,234,0.10);
+            border: 1.5px solid rgba(255,255,255,0.18);
+            letter-spacing: 0.01em;
+            cursor: pointer;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .nav-menu a::before {
+            display: none;
+        }
+        .nav-menu a:hover {
+            background: #fff;
+            color: #764ba2;
+            box-shadow: 0 4px 18px rgba(118,75,162,0.13);
+            border: 1.5px solid #fff;
+        }
+
+        /* ...existing code... */
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 120px 0 80px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><polygon fill="rgba(255,255,255,0.1)" points="0,0 1000,300 1000,1000 0,700"/></svg>');
+            animation: float 20s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .hero-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            animation: fadeInUp 1s ease-out 0.2s both;
+        }
+
+        .cta-button {
+            background: linear-gradient(45deg, #ff6b6b, #ffa500);
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            box-shadow: 0 10px 30px rgba(255,107,107,0.3);
+            animation: fadeInUp 1s ease-out 0.4s both;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(255,107,107,0.5);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Stats Section */
+        .stats-section {
+            padding: 60px 0;
+            background: #f8f9fa;
+        }
+
+        .stats-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            padding: 0 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 1.1rem;
+            color: #666;
+        }
+
+        /* Featured Simulations */
+        .featured-section {
+            padding: 80px 0;
+            background: white;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            color: #333;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border-radius: 2px;
+        }
+
+        .simulations-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            padding: 0 2rem;
+        }
+
+        .simulation-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .simulation-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+        }
+
+        .simulation-preview {
+            height: 200px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .simulation-preview::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="2" fill="rgba(255,255,255,0.1)"/></svg>');
+            animation: sparkle 3s ease-in-out infinite;
+        }
+
+        @keyframes sparkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        .simulation-content {
+            padding: 1.5rem;
+        }
+
+        .simulation-title {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        .simulation-description {
+            color: #666;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+
+        .simulation-features {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        .feature-tag {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .try-button {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .try-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40,167,69,0.3);
+        }
+
+        /* Categories Section */
+        .categories-section {
+            padding: 80px 0;
+            background: #f8f9fa;
+        }
+
+        .categories-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            padding: 0 2rem;
+        }
+
+        .category-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .category-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+
+        .category-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .category-title {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        .category-description {
+            color: #666;
+            margin-bottom: 1.5rem;
+        }
+
+        .module-count {
+            background: #667eea;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            display: inline-block;
+        }
+
+        /* Mission Section */
+        .mission-section {
+            padding: 80px 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+        }
+
+        .mission-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .mission-title {
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .mission-text {
+            font-size: 1.2rem;
+            line-height: 1.8;
+            margin-bottom: 2rem;
+        }
+
+        /* News Section */
+        .news-section {
+            padding: 80px 0;
+            background: white;
+        }
+
+        .news-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            padding: 0 2rem;
+        }
+
+        .news-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .news-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+
+        .news-image {
+            height: 200px;
+            background: linear-gradient(45deg, #ff6b6b, #ffa500);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+        }
+
+        .news-content {
+            padding: 1.5rem;
+        }
+
+        .news-date {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .news-title {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        .news-excerpt {
+            color: #666;
+            line-height: 1.5;
+        }
+
+        /* Footer */
+        .footer {
+            background: #2c3e50;
+            color: white;
+            padding: 40px 0 20px;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            padding: 0 2rem;
+        }
+
+        .footer-section h3 {
+            margin-bottom: 1rem;
+            color: #ecf0f1;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section ul li {
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-section ul li a {
+            color: #bdc3c7;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-section ul li a:hover {
+            color: #3498db;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #34495e;
+            color: #95a5a6;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .nav-menu {
+                display: none;
+            }
+            
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .simulations-grid,
+            .categories-grid,
+            .news-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Interactive Elements */
+        .interactive-element {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .interactive-element:hover {
+            transform: scale(1.05);
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Floating Action Button */
+        .fab {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .fab:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 25px rgba(0,0,0,0.4);
+        }
+
+        /* Notification Toast */
+        .toast {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            transform: translateX(400px);
+            transition: all 0.3s ease;
+            z-index: 1001;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+    </style>
+</head>
+<body style="opacity:0;transition:opacity 1.2s cubic-bezier(.4,0,.2,1);">
+    <!-- Luôn chuyển về intro (index.html) khi reload trang home -->
+    <script>
+      // Fade in hiệu ứng khi vào home nếu có query fadein=1
+      document.addEventListener('DOMContentLoaded', function() {
+        if (window.location.search.includes('fadein=1')) {
+          setTimeout(function() {
+            document.body.style.opacity = 1;
+          }, 50);
+        } else {
+          document.body.style.opacity = 1;
+        }
+      });
+      if (performance.navigation.type === 1 || performance.getEntriesByType('navigation')[0]?.type === 'reload') {
+        window.location.href = 'index.html';
+      }
+    </script>
+    <!-- Header sẽ được nhúng tự động -->
+    <div id="navbar-placeholder"></div>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        fetch('navbar.html')
+          .then(response => response.text())
+          .then(data => {
+            document.getElementById('navbar-placeholder').innerHTML = data;
+          });
+      });
+    </script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        fetch('navbar.html')
+          .then(response => response.text())
+          .then(data => {
+            document.getElementById('navbar-placeholder').innerHTML = data;
+            // Hiệu ứng chuyển cảnh fade khi click link
+            document.querySelectorAll('.nav-menu a').forEach(link => {
+              link.addEventListener('click', function(e) {
+                const href = this.getAttribute('href');
+                if (href && !href.startsWith('#')) {
+                  e.preventDefault();
+                  document.body.style.transition = 'opacity 0.5s cubic-bezier(.4,0,.2,1)';
+                  document.body.style.opacity = 0;
+                  setTimeout(() => { window.location.href = href; }, 400);
+                }
+              });
+            });
+          });
+      });
+    </script>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="hero-content">
+            <h1>Học tập Tương tác với Mô phỏng Ảo</h1>
+            <p>Nền tảng học tập hiện đại giúp sinh viên tiếp cận kiến thức kỹ thuật một cách trực quan và sinh động</p>
+            <a href="#simulations" class="cta-button interactive-element">Khám phá ngay</a>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats-section">
+        <div class="stats-container">
+            <div class="stat-card interactive-element">
+                <div class="stat-number" data-target="1250">0</div>
+                <div class="stat-label">Sinh viên tham gia</div>
+            </div>
+            <div class="stat-card interactive-element">
+                <div class="stat-number" data-target="45">0</div>
+                <div class="stat-label">Mô-đun mô phỏng</div>
+            </div>
+            <div class="stat-card interactive-element">
+                <div class="stat-number" data-target="12">0</div>
+                <div class="stat-label">Khóa học hoàn chỉnh</div>
+            </div>
+            <div class="stat-card interactive-element">
+                <div class="stat-number" data-target="98">0</div>
+                <div class="stat-label">% Hài lòng</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Simulations -->
+    <section class="featured-section" id="simulations">
+        <h2 class="section-title">Mô phỏng Nổi bật</h2>
+        <div class="simulations-grid">
+            <div class="simulation-card interactive-element">
+                <div class="simulation-preview">
+                    <span>⚡</span>
+                </div>
+                <div class="simulation-content">
+                    <h3 class="simulation-title">Giao thức I2C Interactive</h3>
+                    <p class="simulation-description">Mô phỏng chi tiết giao thức I2C với ESP32, hiển thị timing diagram và sơ đồ mạch thực tế</p>
+                    <div class="simulation-features">
+                        <span class="feature-tag">3D Visualization</span>
+                        <span class="feature-tag">Real-time</span>
+                        <span class="feature-tag">Interactive</span>
+                    </div>
+                    <a class="try-button" href="i2c_simulator.html">Thử ngay</a>
+                </div>
+            </div>
+
+            <div class="simulation-card interactive-element">
+                <div class="simulation-preview">
+                    <span>🔧</span>
+                </div>
+                <div class="simulation-content">
+                    <h3 class="simulation-title">Mạch điện tử cơ bản</h3>
+                    <p class="simulation-description">Thực hành với resistor, capacitor, LED và các linh kiện cơ bản trong môi trường ảo an toàn</p>
+                    <div class="simulation-features">
+                        <span class="feature-tag">Multimeter</span>
+                        <span class="feature-tag">Oscilloscope</span>
+                        <span class="feature-tag">Circuit Builder</span>
+                    </div>
+                    <button class="try-button" onclick="showToast('Đang khởi tạo phòng lab ảo...')">Thử ngay</button>
+                </div>
+            </div>
+
+            <div class="simulation-card interactive-element">
+                <div class="simulation-preview">
+                    <span>🤖</span>
+                </div>
+                <div class="simulation-content">
+                    <h3 class="simulation-title">Arduino Programming Lab</h3>
+                    <p class="simulation-description">Lập trình Arduino trong môi trường mô phỏng với sensors, actuators và serial monitor</p>
+                    <div class="simulation-features">
+                        <span class="feature-tag">Code Editor</span>
+                        <span class="feature-tag">Serial Monitor</span>
+                        <span class="feature-tag">Component Library</span>
+                    </div>
+                    <button class="try-button" onclick="showToast('Đang tải Arduino IDE...')">Thử ngay</button>
+                </div>
+            </div>
+
+            <div class="simulation-card interactive-element">
+                <div class="simulation-preview">
+                    <span>📊</span>
+                </div>
+                <div class="simulation-content">
+                    <h3 class="simulation-title">Signal Processing</h3>
+                    <p class="simulation-description">Xử lý tín hiệu số với FFT, filters và spectrum analyzer trong thời gian thực</p>
+                    <div class="simulation-features">
+                        <span class="feature-tag">FFT Analysis</span>
+                        <span class="feature-tag">Filter Design</span>
+                        <span class="feature-tag">Spectrum View</span>
+                    </div>
+                    <button class="try-button" onclick="showToast('Đang tải công cụ xử lý tín hiệu...')">Thử ngay</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Categories Section -->
+    <section class="categories-section" id="categories">
+        <h2 class="section-title">Danh mục Mô phỏng</h2>
+        <div class="categories-grid">
+            <div class="category-card interactive-element">
+                <span class="category-icon">⚡</span>
+                <h3 class="category-title">Điện tử</h3>
+                <p class="category-description">Mô phỏng các mạch điện tử, vi xử lý, cảm biến và hệ thống nhúng</p>
+                <div class="module-count">18 mô-đun</div>
+            </div>
+
+            <div class="category-card interactive-element">
+                <span class="category-icon">💻</span>
+                <h3 class="category-title">Công nghệ Thông tin</h3>
+                <p class="category-description">Lập trình, cấu trúc dữ liệu, mạng máy tính và bảo mật thông tin</p>
+                <div class="module-count">15 mô-đun</div>
+            </div>
+
+            <div class="category-card interactive-element">
+                <span class="category-icon">🌐</span>
+                <h3 class="category-title">Tiếng Anh</h3>
+                <p class="category-description">Tiếng Anh chuyên ngành kỹ thuật, giao tiếp và thuyết trình</p>
+                <div class="module-count">12 mô-đun</div>
+            </div>
+
+            <div class="category-card interactive-element">
+                <span class="category-icon">🔬</span>
+                <h3 class="category-title">Vật lý Kỹ thuật</h3>
+                <p class="category-description">Thí nghiệm vật lý, cơ học, nhiệt học và quang học</p>
+                <div class="module-count">10 mô-đun</div>
+            </div>
+
+            <div class="category-card interactive-element">
+                <span class="category-icon">⚙️</span>
+                <h3 class="category-title">Cơ khí</h3>
+                <p class="category-description">Thiết kế CAD, gia công CNC và tự động hóa sản xuất</p>
+                <div class="module-count">8 mô-đun</div>
+            </div>
+
+            <div class="category-card interactive-element">
+                <span class="category-icon">📊</span>
+                <h3 class="category-title">Toán Kỹ thuật</h3>
+                <p class="category-description">Giải tích, đại số tuyến tính và thống kê ứng dụng</p>
+                <div class="module-count">12 mô-đun</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Mission Section -->
+    <section class="mission-section">
+        <div class="mission-content">
+            <h2 class="mission-title">Sứ mệnh của chúng tôi</h2>
+            <p class="mission-text">
+                Tại LHU Interactive, chúng tôi cam kết tạo ra một môi trường học tập hiện đại, 
+                nơi sinh viên có thể khám phá kiến thức kỹ thuật thông qua trải nghiệm thực tế 
+                mà không gặp phải rủi ro hay hạn chế về tài nguyên. Chúng tôi tin rằng học tập 
+                tương tác sẽ mở ra những cơ hội vô hạn cho thế hệ kỹ sư tương lai.
+            </p>
+        </div>
+    </section>
+
+    <!-- News Section -->
+    <section class="news-section">
+        <h2 class="section-title">Tin tức & Cập nhật</h2>
+        <div class="news-grid">
+            <div class="news-card interactive-element">
+                <div class="news-image">📱</div>
+                <div class="news-content">
+                    <div class="news-date">15/07/2025</div>
+                    <h3 class="news-title">Ra mắt ứng dụng mobile LHU Interactive</h3>
+                    <p class="news-excerpt">Ứng dụng di động cho phép học tập mọi lúc, mọi nơi với đồng bộ dữ liệu cloud...</p>
+                </div>
+            </div>
+
+            <div class="news-card interactive-element">
+                <div class="news-image">🎓</div>
+                <div class="news-content">
+                    <div class="news-date">12/07/2025</div>
+                    <h3 class="news-title">Chương trình chứng chỉ IoT Engineer</h3>
+                    <p class="news-excerpt">Khóa học chuyên sâu về Internet of Things với các dự án thực tế...</p>
+                </div>
+            </div>
+
+            <div class="news-card interactive-element">
+                <div class="news-image">🏆</div>
+                <div class="news-content">
+                    <div class="news-date">10/07/2025</div>
+                    <h3 class="news-title">Giải thưởng "Nền tảng học tập sáng tạo 2025"</h3>
+                    <p class="news-excerpt">LHU Interactive được vinh danh tại hội thảo giáo dục công nghệ...</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>LHU Interactive</h>
+            </div>
+        </div>
+    </footer>
+    <script src="chatbot.js"></script>
+</body>
+</html>

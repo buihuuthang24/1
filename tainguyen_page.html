@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LHU - Tài nguyên Học tập & Nghiên cứu</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo i {
+            color: #ffd700;
+            animation: pulse 2s infinite;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-menu a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+        }
+
+        .nav-menu a:hover, .nav-menu a.active {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Main Content */
+        .main-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            text-align: center;
+            padding: 3rem 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 20px;
+            margin-bottom: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-title {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .hero-subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        /* Search Section */
+        .search-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 3rem;
+        }
+
+        .search-container {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+        }
+
+        .search-btn {
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102,126,234,0.3);
+        }
+
+        .filter-tags {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-tag {
+            padding: 0.5rem 1rem;
+            background: #f0f0f0;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .filter-tag:hover, .filter-tag.active {
+            background: #667eea;
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        /* Categories Section */
+        .categories-section {
+            margin-bottom: 3rem;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #333;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 2px;
+        }
+
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .category-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .category-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .category-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+
+        .category-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #667eea;
+        }
+
+        .category-title {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        .category-description {
+            color: #666;
+            margin-bottom: 1.5rem;
+        }
+
+        .resource-count {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        /* Resources Grid */
+        .resources-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .resource-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+
+        .resource-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+
+        .resource-thumbnail {
+            height: 200px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .resource-thumbnail::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="20" cy="80" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="80" r="2" fill="rgba(255,255,255,0.1)"/></svg>');
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .resource-icon {
+            font-size: 4rem;
+            color: white;
+            z-index: 1;
+        }
+
+        .resource-content {
+            padding: 1.5rem;
+        }
+
+        .resource-title {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        .resource-meta {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .resource-description {
+            color: #666;
+            margin-bottom: 1.5rem;
+        }
+
+        .resource-tags {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        .resource-tag {
+            padding: 0.25rem 0.75rem;
+            background: #f0f0f0;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .resource-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .action-btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+
+        /* Statistics Section */
+        .stats-section {
+            background: white;
+            padding: 3rem 2rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 3rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            text-align: center;
+        }
+
+        .stat-card {
+            padding: 1.5rem;
+            border-radius: 15px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #667eea;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        /* Footer */
+        .footer {
+            background: #333;
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            margin-top: 3rem;
+        }
+
+        /* Animations */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-menu {
+                display: none;
+            }
+            
+            .hero-title {
+                font-size: 2rem;
+            }
+            
+            .search-container {
+                flex-direction: column;
+            }
+            
+            .categories-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .resources-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="nav-container">
+            <div class="logo">
+                <i class="fas fa-graduation-cap"></i>
+                LHU Learning
+            </div>
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="home.html"><i class="fas fa-home"></i> Trang chủ</a></li>
+                    <li><a href="danhmuc.html"><i class="fas fa-flask"></i> Mô phỏng</a></li>
+                    <li><a href="tainguyen_page.html" class="active"><i class="fas fa-book"></i> Tài nguyên</a></li>
+                    <li><a href="about_us_page.html"><i class="fas fa-info-circle"></i> Về chúng tôi</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="hero-content">
+                <h1 class="hero-title">📚 Tài nguyên Học tập & Nghiên cứu</h1>
+                <p class="hero-subtitle">Khám phá thư viện tài nguyên phong phú để nâng cao kiến thức và kỹ năng của bạn</p>
+            </div>
+        </section>
+
+        <!-- Search Section -->
+        <section class="search-section">
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Tìm kiếm tài nguyên, khóa học, bài viết..." id="searchInput">
+                <button class="search-btn" onclick="searchResources()">
+                    <i class="fas fa-search"></i> Tìm kiếm
+                </button>
+            </div>
+            <div class="filter-tags">
+                <div class="filter-tag active" onclick="filterByTag('all')">Tất cả</div>
+                <div class="filter-tag" onclick="filterByTag('electronics')">Điện tử</div>
+                <div class="filter-tag" onclick="filterByTag('programming')">Lập trình</div>
+                <div class="filter-tag" onclick="filterByTag('research')">Nghiên cứu</div>
+                <div class="filter-tag" onclick="filterByTag('tutorial')">Hướng dẫn</div>
+                <div class="filter-tag" onclick="filterByTag('documentation')">Tài liệu</div>
+            </div>
+        </section>
+
+        <!-- Categories Section -->
+        <section class="categories-section">
+            <h2 class="section-title">📂 Danh mục Tài nguyên</h2>
+            <div class="categories-grid">
+                <div class="category-card" onclick="showCategory('electronics')">
+                    <div class="category-icon">
+                        <i class="fas fa-microchip"></i>
+                    </div>
+                    <h3 class="category-title">Điện tử</h3>
+                    <p class="category-description">Tài liệu, datasheet, mô phỏng mạch điện tử từ cơ bản đến nâng cao</p>
+                    <div class="resource-count">
+                        <i class="fas fa-file-alt"></i>
+                        <span>150+ tài nguyên</span>
+                    </div>
+                </div>
+
+                <div class="category-card" onclick="showCategory('programming')">
+                    <div class="category-icon">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <h3 class="category-title">Lập trình</h3>
+                    <p class="category-description">Code mẫu, tutorial, framework và công cụ phát triển phần mềm</p>
+                    <div class="resource-count">
+                        <i class="fas fa-file-code"></i>
+                        <span>200+ tài nguyên</span>
+                    </div>
+                </div>
+
+                <div class="category-card" onclick="showCategory('research')">
+                    <div class="category-icon">
+                        <i class="fas fa-microscope"></i>
+                    </div>
+                    <h3 class="category-title">Nghiên cứu</h3>
+                    <p class="category-description">Bài báo khoa học, luận văn, báo cáo nghiên cứu và dữ liệu thực nghiệm</p>
+                    <div class="resource-count">
+                        <i class="fas fa-file-pdf"></i>
+                        <span>75+ tài nguyên</span>
+                    </div>
+                </div>
+
+                <div class="category-card" onclick="showCategory('tools')">
+                    <div class="category-icon">
+                        <i class="fas fa-tools"></i>
+                    </div>
+                    <h3 class="category-title">Công cụ</h3>
+                    <p class="category-description">Phần mềm mô phỏng, calculator, converter và utilities hữu ích</p>
+                    <div class="resource-count">
+                        <i class="fas fa-download"></i>
+                        <span>50+ công cụ</span>
+                    </div>
+                </div>
+
+                <div class="category-card" onclick="showCategory('videos')">
+                    <div class="category-icon">
+                        <i class="fas fa-play-circle"></i>
+                    </div>
+                    <h3 class="category-title">Video học tập</h3>
+                    <p class="category-description">Bài giảng video, webinar, demonstration và tutorial trực quan</p>
+                    <div class="resource-count">
+                        <i class="fas fa-video"></i>
+                        <span>120+ video</span>
+                    </div>
+                </div>
+
+                <div class="category-card" onclick="showCategory('books')">
+                    <div class="category-icon">
+                        <i class="fas fa-book-open"></i>
+                    </div>
+                    <h3 class="category-title">Sách & Tài liệu</h3>
+                    <p class="category-description">E-book, handbook, reference manual và tài liệu tham khảo</p>
+                    <div class="resource-count">
+                        <i class="fas fa-book"></i>
+                        <span>80+ sách</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Resources Grid -->
+        <section class="resources-section">
+            <h2 class="section-title">🔥 Tài nguyên Nổi bật</h2>
+            <div class="resources-grid" id="resourcesGrid">
+                <!-- Resource 1 -->
+                <div class="resource-card" data-category="electronics">
+                    <div class="resource-thumbnail">
+                        <div class="resource-icon">
+                            <i class="fas fa-microchip"></i>
+                        </div>
+                    </div>
+                    <div class="resource-content">
+                        <h3 class="resource-title">Mô phỏng Giao thức I2C</h3>
+                        <div class="resource-meta">
+                            <span><i class="fas fa-user"></i> Dr. Nguyễn Văn A</span>
+                            <span><i class="fas fa-calendar"></i> 15/07/2024</span>
+                            <span><i class="fas fa-eye"></i> 1.2k lượt xem</span>
+                        </div>
+                        <p class="resource-description">Hướng dẫn chi tiết về giao thức I2C với mô phỏng tương tác, giúp sinh viên hiểu rõ cách hoạt động của bus I2C.</p>
+                        <div class="resource-tags">
+                            <span class="resource-tag">I2C</span>
+                            <span class="resource-tag">Mô phỏng</span>
+                            <span class="resource-tag">Điện tử</span>
+                        </div>
+                        <div class="resource-actions">
+                            <a href="#" class="action-btn btn-primary">
+                                <i class="fas fa-play"></i> Xem mô phỏng
+                            </a>
+                            <button class="action-btn btn-secondary" onclick="downloadResource('i2c-simulation')">
+                                <i class="fas fa-download"></i> Tải về
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resource 2 -->
+                <div class="resource-card" data-category="programming">
+                    <div class="resource-thumbnail">
+                        <div class="resource-icon">
+                            <i class="fas fa-code"></i>
+                        </div>
+                    </div>
+                    <div class="resource-content">
+                        <h3 class="resource-title">Arduino Programming Guide</h3>
+                        <div class="resource-meta">
+                            <span><i class="fas fa-user"></i> Th.S Trần Thị B</span>
+                            <span><i class="fas fa-calendar"></i> 10/07/2024</span>
+                            <span class="resource-rating"><i class="fas fa-star"></i> 4.8/5</span>
+                        </div>
+                        <p class="resource-description">Hướng dẫn lập trình Arduino từ cơ bản đến nâng cao với 50+ ví dụ thực tế và code mẫu.</p>
+                        <div class="resource-tags">
+                            <span class="resource-tag">Arduino</span>
+                            <span class="resource-tag">C++</span>
+                            <span class="resource-tag">Embedded</span>
+                        </div>
+                        <div class="resource-actions">
+                            <a href="#" class="action-btn btn-primary">
+                                <i class="fas fa-book-open"></i> Đọc ngay
+                            </a>
+                            <button class="action-btn btn-secondary" onclick="bookmarkResource('arduino-guide')">
+                                <i class="fas fa-bookmark"></i> Lưu
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resource 3 -->
+                <div class="resource-card" data-category="research">
+                    <div class="resource-thumbnail">
+                        <div class="resource-icon">
+                            <i class="fas fa-microscope"></i>
+                        </div>
+                    </div>
+                    <div class="resource-content">
+                        <h3 class="resource-title">IoT Security Research Paper</h3>
+                        <div class="resource-meta">
+                            <span><i class="fas fa-user"></i> Prof. Lê Văn C</span>
+                            <span><i class="fas fa-calendar"></i> 05/07/2024</span>
+                            <span><i class="fas fa-download"></i> 500+ tải về</span>
+                        </div>
+                        <p class="resource-description">Nghiên cứu về bảo mật IoT và các phương pháp tăng cường an toàn cho thiết bị kết nối.</p>
+                        <div class="resource-tags">
+                            <span class="resource-tag">IoT</span>
+                            <span class="resource-tag">Security</span>
+                            <span class="resource-tag">Research</span>
+                        </div>
+                        <div class="resource-actions">
+                            <a href="#" class="action-btn btn-primary">
+                                <i class="fas fa-file-pdf"></i> Xem PDF
+                            </a>
+                            <button class="action-btn btn-secondary" onclick="citeResource('iot-security')">
+                                <i class="fas fa-quote-left"></i> Trích dẫn
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resource 4 -->
+                <div class="resource-card" data-category="tools">
+                    <div class="resource-thumbnail">
+                        <div class="resource-icon">
+                            <i class="fas fa-calculator"></i>
+                        </div>
+                    </div>
+                    <div class="resource-content">
+                        <h3 class="resource-title">Circuit Calculator Tool</h3>
+                        <div class="resource-meta">
+                            <span><i class="fas fa-user"></i> LHU Dev Team</span>
+                            <span><i class="fas fa-calendar"></i> 01/07/2024</span>
+                            <span><i class="fas fa-users"></i> 2.5k người dùng</span>
+                        </div>
+                        <p class="resource-description">Công cụ tính toán mạch điện online với giao diện thân thiện và tính năng mô phỏng nhanh.</p>
+                        <div class="resource-tags">
+                            <span class="resource-tag">Calculator</span>
+                            <span class="resource-tag">Circuit</span>
+                            <span class="resource-tag">Tool</span>
+                        </div>
+                        <div class="resource-actions">
+                            <a href="#" class="action-btn btn-primary">
+                                <i class="fas fa-external-link-alt"></i> Sử dụng
+                            </a>
+                            <button class="action-btn btn-secondary" onclick="shareResource('circuit-calc')">
+                                <i class="fas fa-share"></i> Chia sẻ
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resource 5 -->
+                <div class="resource-card" data-category="videos">
+                    <div class="resource-thumbnail">
+                        <div class="resource-icon">
+                            <i class="fas fa-play-circle"></i>
+                        </div>
+                    </div>
+                    <div class="resource-content">
+                        <h3 class="resource-title">PCB Design Masterclass</h3>
+                        <div class="resource-meta">
+                            <span><i class="fas fa-user"></i> Eng. Hoàng Minh D</span>
+                            <span><i class="fas fa-clock"></i> 2h 30m</span>
+                            <span><i class="fas fa-thumbs-up"></i> 98% thích</span>
+                        </div>
+                        <p class="resource-description">Series video hướng dẫn thiết kế PCB từ A-Z với Altium Designer, bao gồm tips và tricks thực tế.</p>
+                        <div class="resource-tags">
+                            <span class="resource-tag">PCB</span>
+                            <span class="resource-tag">Design</span>
+                            <span class="resource-tag">Altium</span>
+                        </div>
+                        <div class="resource-actions">
+                            <a href="#" class="action-btn btn-primary">
+                                <i class="fas fa-play"></i> Xem video
+                            </a>

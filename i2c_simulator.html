@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mô Phỏng Giao Thức I2C</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .header {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px 30px;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 300;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            text-align: center;
+            opacity: 0.8;
+            font-size: 14px;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            padding: 20px;
+            gap: 20px;
+            overflow: hidden;
+        }
+
+        .circuit-area {
+            flex: 2;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .control-panel {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            overflow-y: auto;
+        }
+
+        .device {
+            position: absolute;
+            background: linear-gradient(145deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            min-width: 120px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .device:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .device.active {
+            border: 2px solid #00ff88;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+        }
+
+        .master {
+            top: 50px;
+            left: 220px; /* Di chuyển master sang phải để không che chú thích */
+            background: linear-gradient(145deg, #ff6b6b 0%, #ee5a24 100%);
+        }
+
+        .slave {
+            background: linear-gradient(145deg, #4ecdc4 0%, #44a08d 100%);
+        }
+
+        .slave1 { top: 50px; right: 50px; }
+        .slave2 { bottom: 50px; right: 50px; }
+        .slave3 { bottom: 50px; left: 50px; }
+
+        .bus-line {
+            position: absolute;
+            background: #00ff88;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+        }
+
+        .sda-line {
+            height: 3px;
+            top: 45%;
+            left: 50px;
+            right: 50px;
+        }
+
+        .scl-line {
+            height: 3px;
+            top: 55%;
+            left: 50px;
+            right: 50px;
+        }
+
+        .data-packet {
+            position: absolute;
+            background: #ffeb3b;
+            color: #000;
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-size: 12px;
+            font-weight: bold;
+            animation: moveData 2s ease-in-out;
+            box-shadow: 0 0 15px rgba(255, 235, 59, 0.5);
+        }
+
+        @keyframes moveData {
+            0% { left: 170px; opacity: 0; }
+            20% { opacity: 1; }
+            80% { opacity: 1; }
+            100% { left: calc(100% - 170px); opacity: 0; }
+        }
+
+        .signal-indicator {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #ff4757;
+            transition: all 0.3s ease;
+        }
+
+        .signal-indicator.active {
+            background: #00ff88;
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.8);
+        }
+
+        .sda-indicator {
+            top: calc(45% - 5px);
+            left: 20px;
+        }
+
+        .scl-indicator {
+            top: calc(55% - 5px);
+            left: 20px;
+        }
+
+        .control-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .control-section h3 {
+            margin-bottom: 10px;
+            color: #00ff88;
+            font-size: 16px;
+        }
+
+        .btn {
+            background: linear-gradient(145deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 5px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn.primary {
+            background: linear-gradient(145deg, #ff6b6b 0%, #ee5a24 100%);
+        }
+
+        .status-display {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-family: monospace;
+            font-size: 12px;
+            min-height: 100px;
+            overflow-y: auto;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .waveform {
+            height: 80px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 5px;
+            margin: 10px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .wave-line {
+            position: absolute;
+            height: 2px;
+            background: #00ff88;
+            top: 50%;
+            left: 0;
+            right: 0;
+            transform: translateY(-50%);
+        }
+
+        .input-group {
+            margin: 10px 0;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 14px;
+        }
+
+        .input-group input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .device-info {
+            font-size: 12px;
+            margin-top: 5px;
+            opacity: 0.8;
+        }
+
+        .legend {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 12px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 5px 0;
+        }
+
+        .legend-color {
+            width: 15px;
+            height: 15px;
+            border-radius: 3px;
+            margin-right: 8px;
+        }
+
+        .animation-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 255, 136, 0.1);
+            border-radius: 15px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .animation-overlay.active {
+            opacity: 1;
+        }
+
+        .back-home-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            transition: transform 0.3s ease;
+        }
+
+        .back-home-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .back-home-text {
+            font-size: 1.15rem;
+            font-weight: 700;
+            letter-spacing: 0.01em;
+            background: rgba(255,255,255,0.18);
+            border-radius: 18px;
+            padding: 6px 18px;
+            margin-left: 2px;
+            box-shadow: 0 2px 8px rgba(102,126,234,0.10);
+            color: #fff;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body style="opacity:1;transition:opacity 1.2s cubic-bezier(.4,0,.2,1);">
+    <!-- Nút quay về trang chủ -->
+    <a href="home.html" class="back-home-btn center-top" title="Quay về trang chủ">
+      <span style="font-size:2.2rem;vertical-align:middle;line-height:1;">🏠</span>
+      <span class="back-home-text">Trang chủ</span>
+    </a>
+    <style>
+      .back-home-btn {
+        position: fixed;
+        top: 24px;
+        left: 32%;
+        transform: translateX(-32%);
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: rgba(30,60,114,0.92);
+        color: #fff;
+        font-weight: 600;
+        font-size: 1.15rem;
+        padding: 10px 22px 10px 16px;
+        border-radius: 32px;
+        box-shadow: 0 4px 24px rgba(30,60,114,0.18);
+        text-decoration: none;
+        transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
+        cursor: pointer;
+        opacity: 0.97;
+      }
+      .back-home-btn:hover {
+        background: #1e3c72;
+        box-shadow: 0 8px 32px rgba(30,60,114,0.28);
+        transform: translateY(-2px) scale(1.04);
+        color: #ffd700;
+      }
+      .back-home-btn .back-home-text {
+        font-size: 1.08em;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        text-shadow: 0 2px 8px rgba(0,0,0,0.10);
+      }
+    </style>
+
+    <!-- Header sẽ được nhúng tự động -->
+
+    <script>
+      // Không load navbar ở trang I2C
+    </script>
+    <div class="container">
+
+
+        <div class="main-content">
+            <div class="circuit-area">
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #ff6b6b;"></div>
+                        <span>Master (MCU)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #4ecdc4;"></div>
+                        <span>Slave Devices</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #00ff88;"></div>
+                        <span>Bus Lines (SDA/SCL)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #ffeb3b;"></div>
+                        <span>Data Packet</span>
+                    </div>
+                </div>
+
+                <div class="animation-overlay" id="animationOverlay"></div>
+
+                <!-- Bus Lines -->
+                <div class="bus-line sda-line" id="sdaLine"></div>
+                <div class="bus-line scl-line" id="sclLine"></div>
+
+                <!-- Signal Indicators -->
+                <div class="signal-indicator sda-indicator" id="sdaIndicator"></div>
+                <div class="signal-indicator scl-indicator" id="sclIndicator"></div>
+
+                <!-- Devices -->
+                <div class="device master" id="master">
+                    <div style="font-weight: bold;">MASTER</div>
+                    <div style="font-size: 14px;">Arduino/MCU</div>
+                    <div class="device-info">Address: 0x00</div>
+                </div>
+
+                <div class="device slave slave1" id="slave1" data-address="0x48">
+                    <div style="font-weight: bold;">SLAVE 1</div>
+                    <div style="font-size: 14px;">Temperature</div>
+                    <div class="device-info">Address: 0x48</div>
+                    <div class="device-info">Nhiệt độ: <span id="temp1">25</span>°C</div>
+                    <div class="device-info">LED: <span id="led1" style="color:gray;">OFF</span></div>
+                </div>
+
+                <div class="device slave slave2" id="slave2" data-address="0x50">
+                    <div style="font-weight: bold;">SLAVE 2</div>
+                    <div style="font-size: 14px;">EEPROM</div>
+                    <div class="device-info">Address: 0x50</div>
+                    <div class="device-info">Nhiệt độ: <span id="temp2">25</span>°C</div>
+                    <div class="device-info">LED: <span id="led2" style="color:gray;">OFF</span></div>
+                </div>
+
+                <div class="device slave slave3" id="slave3" data-address="0x68">
+                    <div style="font-weight: bold;">SLAVE 3</div>
+                    <div style="font-size: 14px;">RTC</div>
+                    <div class="device-info">Address: 0x68</div>
+                    <div class="device-info">Nhiệt độ: <span id="temp3">25</span>°C</div>
+                    <div class="device-info">LED: <span id="led3" style="color:gray;">OFF</span></div>
+                </div>
+
+                <!-- Labels cho bus lines -->
+                <div style="position: absolute; left: 10px; top: 43%; font-size: 12px; font-weight: bold; color: #00ff88;">SDA</div>
+                <div style="position: absolute; left: 10px; top: 53%; font-size: 12px; font-weight: bold; color: #00ff88;">SCL</div>
+            </div>
+
+            <div class="control-panel">
+                <div class="control-section">
+                    <h3>📡 Điều Khiển Truyền Dữ Liệu</h3>
+                    
+                    <div class="input-group">
+                        <label>Chọn Slave Device (có thể chọn nhiều):</label>
+                        <div id="slaveCheckboxes">
+                            <label><input type="checkbox" value="0x48" checked> 0x48 - Temperature Sensor</label><br>
+                            <label><input type="checkbox" value="0x50" checked> 0x50 - EEPROM</label><br>
+                            <label><input type="checkbox" value="0x68" checked> 0x68 - RTC</label>
+                        </div>
+                        <label>Nhập nhiệt độ gửi (°C):</label>
+                        <input type="number" id="inputTemp" value="25" min="-40" max="125">
+                    </div>
+
+                    <div class="input-group">
+                        <label>Dữ liệu gửi (Hex):</label>
+                        <input type="text" id="dataInput" placeholder="VD: 0x1A, 0x2B" value="0x1A">
+                    </div>
+
+                    <div class="input-group">
+                        <label>Chế độ:</label>
+                        <select id="modeSelect">
+                            <option value="write">Write (Ghi)</option>
+                            <option value="read">Read (Đọc)</option>
+                        </select>
+                    </div>
+
+                    <button class="btn primary" onclick="startTransmission()">🚀 Bắt Đầu Truyền</button>
+                    <button class="btn" onclick="resetSimulation()">🔄 Reset</button>
+                </div>
+
+                <div class="control-section">
+                    <h3>📊 Waveform Monitor</h3>
+                    <div>
+                        <div style="font-size: 12px; margin-bottom: 5px;">SDA (Data Line)</div>
+                        <div class="waveform" id="sdaWaveform">
+                            <div class="wave-line" id="sdaWave"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div style="font-size: 12px; margin-bottom: 5px;">SCL (Clock Line)</div>
+                        <div class="waveform" id="sclWaveform">
+                            <div class="wave-line" id="sclWave"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="control-section">
+                    <h3>📝 Nhật Ký Truyền Dữ Liệu</h3>
+                    <div class="status-display" id="statusDisplay">
+                        <div style="color: #00ff88;">🟢 Hệ thống I2C đã sẵn sàng</div>
+                        <div style="color: #fff;">ℹ️ Chọn slave device và bắt đầu truyền dữ liệu</div>
+                    </div>
+                </div>
+
+                <div class="control-section">
+                    <h3>📚 Thông Tin I2C</h3>
+                    <div style="font-size: 12px; line-height: 1.5;">
+                        <p><strong>SDA:</strong> Serial Data Line - Truyền dữ liệu</p>
+                        <p><strong>SCL:</strong> Serial Clock Line - Tín hiệu đồng hồ</p>
+                        <p><strong>Master:</strong> Thiết bị điều khiển bus và clock</p>
+                        <p><strong>Slave:</strong> Thiết bị bị điều khiển</p>
+                        <p><strong>Address:</strong> Địa chỉ 7-bit của slave</p>
+                        <p><strong>Clock:</strong> Xung vuông đồng bộ dữ liệu</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isTransmitting = false;
+        let currentStep = 0;
+        let transmissionSteps = [];
+
+        function addLog(message, type = 'info') {
+            const statusDisplay = document.getElementById('statusDisplay');
+            const colors = {
+                info: '#fff',
+                success: '#00ff88',
+                warning: '#ffeb3b',
+                error: '#ff6b6b'
+            };
+            
+            const log = document.createElement('div');
+            log.style.color = colors[type];
+            log.innerHTML = `<span style="opacity: 0.7;">${new Date().toLocaleTimeString()}</span> ${message}`;
+            statusDisplay.appendChild(log);
+            statusDisplay.scrollTop = statusDisplay.scrollHeight;
+        }
+
+        function highlightDevice(deviceId, active = true) {
+            const device = document.getElementById(deviceId);
+            if (active) {
+                device.classList.add('active');
+            } else {
+                device.classList.remove('active');
+            }
+        }
+
+        function activateSignal(signal, duration = 1000) {
+            const indicator = document.getElementById(signal + 'Indicator');
+            const line = document.getElementById(signal + 'Line');
+            
+            indicator.classList.add('active');
+            line.style.boxShadow = '0 0 15px rgba(0, 255, 136, 0.8)';
+            
+            setTimeout(() => {
+                indicator.classList.remove('active');
+                if (signal !== 'scl') {
+                    line.style.boxShadow = '0 0 10px rgba(0, 255, 136, 0.3)';
+                }
+            }, duration);
+        }
+
+        function animateStartStop(type) {
+            const sdaWave = document.getElementById('sdaWave');
+            const sclWave = document.getElementById('sclWave');
+            const sclLine = document.getElementById('sclLine');
+            const sclIndicator = document.getElementById('sclIndicator');
+            
+            if (type === 'start') {
+                // START: SDA goes LOW while SCL is HIGH
+                sclWave.style.top = '25%';
+                sclWave.style.background = '#00ff88';
+                sclIndicator.classList.add('active');
+                
+                setTimeout(() => {
+                    sdaWave.style.top = '75%';
+                    sdaWave.style.background = '#ff6b6b';
+                }, 100);
+                
+                setTimeout(() => {
+                    sclWave.style.top = '75%';
+                    sclWave.style.background = '#ff6b6b';
+                    sclIndicator.classList.remove('active');
+                }, 200);
+            } else if (type === 'stop') {
+                // STOP: SDA goes HIGH while SCL is HIGH
+                sclWave.style.top = '75%';
+                sclWave.style.background = '#ff6b6b';
+                sdaWave.style.top = '75%';
+                sdaWave.style.background = '#ff6b6b';
+                
+                setTimeout(() => {
+                    sclWave.style.top = '25%';
+                    sclWave.style.background = '#00ff88';
+                    sclIndicator.classList.add('active');
+                }, 100);
+                
+                setTimeout(() => {
+                    sdaWave.style.top = '25%';
+                    sdaWave.style.background = '#00ff88';
+                }, 200);
+                
+                setTimeout(() => {
+                    sclWave.style.top = '50%';
+                    sclWave.style.background = '#00ff88';
+                    sclLine.style.boxShadow = '0 0 10px rgba(0, 255, 136, 0.3)';
+                    sclIndicator.classList.remove('active');
+                }, 400);
+            }
+        }
+
+        function createDataPacket(data, type = 'normal') {
+            const packet = document.createElement('div');
+            packet.className = 'data-packet';
+            
+            // Hiển thị loại dữ liệu khác nhau
+            if (type === 'address') {
+                packet.textContent = `ADDR: ${data}`;
+                packet.style.background = '#ff9800';
+            } else if (type === 'ack') {
+                packet.textContent = 'ACK';
+                packet.style.background = '#4caf50';
+            } else if (type === 'start') {
+                packet.textContent = 'START';
+                packet.style.background = '#2196f3';
+            } else if (type === 'stop') {
+                packet.textContent = 'STOP';
+                packet.style.background = '#f44336';
+            } else {
+                packet.textContent = `DATA: ${data}`;
+                packet.style.background = '#ffeb3b';
+            }
+            
+            packet.style.top = '43%';
+            packet.style.color = '#000';
+            packet.style.fontWeight = 'bold';
+            
+            document.querySelector('.circuit-area').appendChild(packet);
+            
+            setTimeout(() => {
+                packet.remove();
+            }, 2000);
+        }
+
+        function animateWaveform(waveId, pattern) {
+            const wave = document.getElementById(waveId);
+            let currentState = 0;
+            let interval = setInterval(() => {
+                if (currentState >= pattern.length) {
+                    clearInterval(interval);
+                    return;
+                }
+                
+                const state = pattern[currentState];
+                wave.style.top = state ? '25%' : '75%';
+                wave.style.background = state ? '#00ff88' : '#ff6b6b';
+                currentState++;
+            }, 200);
+        }
+
+        function animateDataTransmission(dataHex, type = 'data') {
+            // Chuyển đổi hex sang binary
+            let binary = '';
+            if (type === 'address') {
+                const addr = parseInt(dataHex, 16);
+                binary = (addr << 1).toString(2).padStart(8, '0'); // 7-bit address + R/W bit
+            } else {
+                binary = parseInt(dataHex, 16).toString(2).padStart(8, '0');
+            }
+            
+            const sdaWave = document.getElementById('sdaWave');
+            const sclWave = document.getElementById('sclWave');
+            const sclLine = document.getElementById('sclLine');
+            const sclIndicator = document.getElementById('sclIndicator');
+            
+            let bitIndex = 0;
+            let clockState = false;
+            let phase = 'setup'; // setup -> clock -> hold
+            
+            // Hiển thị dữ liệu đang truyền
+            addLog(`🔢 Truyền bits: ${binary} (${dataHex})`, 'info');
+            
+            const interval = setInterval(() => {
+                if (bitIndex >= binary.length) {
+                    clearInterval(interval);
+                    // Reset về trạng thái ban đầu
+                    sclWave.style.top = '50%';
+                    sclWave.style.background = '#00ff88';
+                    sclLine.style.boxShadow = '0 0 10px rgba(0, 255, 136, 0.3)';
+                    sclIndicator.classList.remove('active');
+                    return;
+                }
+                
+                if (phase === 'setup') {
+                    // SCL LOW - setup data
+                    sclWave.style.top = '75%';
+                    sclWave.style.background = '#ff6b6b';
+                    sclLine.style.boxShadow = '0 0 10px rgba(255, 107, 107, 0.8)';
+                    sclIndicator.classList.remove('active');
+                    
+                    // Setup SDA data
+                    const bit = binary[bitIndex];
+                    sdaWave.style.top = bit === '1' ? '25%' : '75%';
+                    sdaWave.style.background = bit === '1' ? '#00ff88' : '#ff6b6b';
+                    
+                    phase = 'clock';
+                } else if (phase === 'clock') {
+                    // SCL HIGH - read data
+                    sclWave.style.top = '25%';
+                    sclWave.style.background = '#00ff88';
+                    sclLine.style.boxShadow = '0 0 15px rgba(0, 255, 136, 0.8)';
+                    sclIndicator.classList.add('active');
+                    
+                    // Log bit được đọc
+                    addLog(`📖 Bit ${bitIndex}: ${binary[bitIndex]}`, 'success');
+                    
+                    phase = 'hold';
+                } else if (phase === 'hold') {
+                    // SCL LOW - hold
+                    sclWave.style.top = '75%';
+                    sclWave.style.background = '#ff6b6b';
+                    sclLine.style.boxShadow = '0 0 10px rgba(255, 107, 107, 0.8)';
+                    sclIndicator.classList.remove('active');
+                    
+                    bitIndex++;
+                    phase = 'setup';
+                }
+            }, 150);
+        }
+
+        async function startTransmission() {
+            if (isTransmitting) return;
+            isTransmitting = true;
+            const slaveCheckboxes = document.querySelectorAll('#slaveCheckboxes input[type="checkbox"]');
+            const selectedSlaves = Array.from(slaveCheckboxes).filter(cb => cb.checked).map(cb => cb.value);
+            const data = document.getElementById('dataInput').value;
+            const mode = document.getElementById('modeSelect').value;
+            const tempValue = document.getElementById('inputTemp').value;
+            document.getElementById('animationOverlay').classList.add('active');
+            addLog(`🚀 Bắt đầu truyền dữ liệu ${mode.toUpperCase()}`, 'info');
+            addLog(`📍 Slave Address(es): ${selectedSlaves.join(', ')}`, 'info');
+            addLog(`📦 Data: ${data}`, 'info');
+            addLog(`🌡️ Nhiệt độ gửi: ${tempValue}°C`, 'info');
+
+            for (let s = 0; s < selectedSlaves.length; s++) {
+                const slaveAddress = selectedSlaves[s];
+                // Simulation steps cho từng slave
+                const steps = [
+                    { action: 'start', message: '🔄 START Condition', duration: 500 },
+                    { action: 'address', message: `📍 Gửi địa chỉ slave: ${slaveAddress}`, duration: 1200 },
+                    { action: 'ack1', message: '✅ Nhận ACK từ slave', duration: 500 },
+                    { action: 'data', message: `📦 ${mode === 'write' ? 'Ghi' : 'Đọc'} dữ liệu: ${data}`, duration: 1200 },
+                    { action: 'ack2', message: '✅ Nhận ACK hoàn thành', duration: 500 },
+                    { action: 'temp', message: `🌡️ Cập nhật nhiệt độ: ${tempValue}°C`, duration: 700 },
+                    { action: 'led', message: `💡 Đèn LED: ${(parseInt(data,16)%2===0)?'ON':'OFF'}`, duration: 700 },
+                    { action: 'stop', message: '⏹️ STOP Condition', duration: 500 }
+                ];
+                for (let i = 0; i < steps.length; i++) {
+                    const step = steps[i];
+                    addLog(`[${slaveAddress}] ${step.message}`, 'success');
+                    // Highlight relevant devices
+                    if (step.action === 'start') {
+                        highlightDevice('master', true);
+                        createDataPacket('START', 'start');
+                        animateStartStop('start');
+                    } else if (step.action === 'stop') {
+                        highlightDevice('master', true);
+                        createDataPacket('STOP', 'stop');
+                        animateStartStop('stop');
+                    } else if (step.action === 'address') {
+                        highlightDevice('master', true);
+                        const targetSlave = document.querySelector(`[data-address="${slaveAddress}"]`);
+                        if (targetSlave) {
+                            highlightDevice(targetSlave.id, true);
+                        }
+                        createDataPacket(slaveAddress, 'address');
+                        animateDataTransmission(slaveAddress, 'address');
+                    } else if (step.action === 'data') {
+                        const cleanData = data.replace(/0x/g, '').replace(/,/g, '');
+                        createDataPacket(cleanData, 'data');
+                        animateDataTransmission(cleanData, 'data');
+                    } else if (step.action === 'ack1' || step.action === 'ack2') {
+                        createDataPacket('ACK', 'ack');
+                        // ACK animation
+                        const sdaWave = document.getElementById('sdaWave');
+                        const sclWave = document.getElementById('sclWave');
+                        const sclIndicator = document.getElementById('sclIndicator');
+                        sclWave.style.top = '75%';
+                        sclWave.style.background = '#ff6b6b';
+                        sdaWave.style.top = '75%';
+                        sdaWave.style.background = '#ff6b6b';
+                        setTimeout(() => {
+                            sclWave.style.top = '25%';
+                            sclWave.style.background = '#00ff88';
+                            sclIndicator.classList.add('active');
+                            addLog(`[${slaveAddress}] 📖 ACK bit: 0 (Acknowledged)`, 'success');
+                        }, 200);
+                        setTimeout(() => {
+                            sclWave.style.top = '75%';
+                            sclWave.style.background = '#ff6b6b';
+                            sclIndicator.classList.remove('active');
+                        }, 400);
+                    } else if (step.action === 'temp') {
+                        // Cập nhật nhiệt độ cho slave
+                        if (slaveAddress === '0x48') document.getElementById('temp1').textContent = tempValue;
+                        if (slaveAddress === '0x50') document.getElementById('temp2').textContent = tempValue;
+                        if (slaveAddress === '0x68') document.getElementById('temp3').textContent = tempValue;
+                    } else if (step.action === 'led') {
+                        // Đèn LED: ON nếu data chẵn, OFF nếu lẻ
+                        const ledState = (parseInt(data,16)%2===0)?'ON':'OFF';
+                        const ledColor = ledState==='ON'?'#00ff88':'gray';
+                        if (slaveAddress === '0x48') { document.getElementById('led1').textContent = ledState; document.getElementById('led1').style.color = ledColor; }
+                        if (slaveAddress === '0x50') { document.getElementById('led2').textContent = ledState; document.getElementById('led2').style.color = ledColor; }
+                        if (slaveAddress === '0x68') { document.getElementById('led3').textContent = ledState; document.getElementById('led3').style.color = ledColor; }
+                    }
+                    await new Promise(resolve => setTimeout(resolve, step.duration));
+                    // Reset highlights
+                    highlightDevice('master', false);
+                    document.querySelectorAll('.slave').forEach(slave => {
+                        highlightDevice(slave.id, false);
+                    });
+                }
+            }
+            document.getElementById('animationOverlay').classList.remove('active');
+            addLog('✅ Truyền dữ liệu hoàn thành!', 'success');
+            isTransmitting = false;
+        }
+
+        function resetSimulation() {
+            document.getElementById('statusDisplay').innerHTML = `
+                <div style="color: #00ff88;">🟢 Hệ thống I2C đã sẵn sàng</div>
+                <div style="color: #fff;">ℹ️ Chọn slave device và bắt đầu truyền dữ liệu</div>
+            `;
+            // Reset all highlights
+            document.querySelectorAll('.device').forEach(device => {
+                device.classList.remove('active');
+            });
+            // Reset waveforms
+            document.getElementById('sdaWave').style.top = '50%';
+            document.getElementById('sclWave').style.top = '50%';
+            document.getElementById('sdaWave').style.background = '#00ff88';
+            document.getElementById('sclWave').style.background = '#00ff88';
+            // Reset nhiệt độ và LED
+            document.getElementById('temp1').textContent = 25;
+            document.getElementById('temp2').textContent = 25;
+            document.getElementById('temp3').textContent = 25;
+            document.getElementById('led1').textContent = 'OFF';
+            document.getElementById('led2').textContent = 'OFF';
+            document.getElementById('led3').textContent = 'OFF';
+            document.getElementById('led1').style.color = 'gray';
+            document.getElementById('led2').style.color = 'gray';
+            document.getElementById('led3').style.color = 'gray';
+            isTransmitting = false;
+            addLog('🔄 Hệ thống đã được reset', 'info');
+        }
+
+        // Add click handlers for devices
+        document.querySelectorAll('.device').forEach(device => {
+            device.addEventListener('click', function() {
+                if (this.classList.contains('slave')) {
+                    const address = this.dataset.address;
+                    // Toggle checkbox for slave
+                    const cb = Array.from(document.querySelectorAll('#slaveCheckboxes input[type="checkbox"]')).find(c => c.value === address);
+                    if (cb) {
+                        cb.checked = !cb.checked;
+                        addLog(`🎯 Đã ${(cb.checked?'chọn':'bỏ chọn')} slave device: ${address}`, 'info');
+                    }
+                }
+            });
+        });
+
+        // Initialize
+        addLog('🔌 Mô phỏng I2C đã khởi tạo', 'success');
+        addLog('💡 Click vào slave device để chọn hoặc sử dụng dropdown', 'info');
+    </script>
+  <script src="chatbot.js"></script>
+</body>
+</html>

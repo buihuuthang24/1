@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Danh mục mô đun ESP32 - Lập trình nhúng CNTT</title>
+  <link rel="stylesheet" href="navbar.css">
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      color: #333;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 30px 16px;
+    }
+    .esp32-header {
+      text-align: center;
+      margin-bottom: 40px;
+      padding: 32px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgba(30,60,114,0.12);
+      color: #fff;
+      border: 2px solid #00bcd4;
+    }
+    .esp32-header h1 {
+      font-size: 2.8rem;
+      margin-bottom: 10px;
+      background: linear-gradient(45deg, #00bcd4, #ff00ff, #ffff00, #00bcd4);
+      background-size: 300% 300%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: gradientShift 3s ease-in-out infinite;
+    }
+    @keyframes gradientShift {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+    .module-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 32px;
+      margin-top: 24px;
+    }
+    .module-card {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 16px rgba(30,60,114,0.10);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      transition: box-shadow 0.2s, transform 0.2s;
+      border-left: 6px solid #00bcd4;
+    }
+    .module-card:hover {
+      box-shadow: 0 8px 32px rgba(30,60,114,0.18);
+      transform: translateY(-4px) scale(1.03);
+    }
+    .module-title {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #1e3c72;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .module-desc {
+      font-size: 1.08rem;
+      color: #444;
+      margin-bottom: 16px;
+    }
+    .module-link {
+      display: inline-block;
+      padding: 8px 18px;
+      background: linear-gradient(45deg, #00bcd4, #2a5298);
+      color: #fff;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: background 0.2s;
+      box-shadow: 0 2px 8px rgba(30,60,114,0.08);
+    }
+    .module-link:hover {
+      background: linear-gradient(45deg, #2a5298, #00bcd4);
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar (nếu có) -->
+  <div id="navbar-container"></div>
+  <div class="container">
+    <div class="esp32-header">
+      <h1>📦 Danh mục mô đun ESP32</h1>
+      <p>Chọn mô đun để học và thực hành lập trình nhúng với ESP32 trong CNTT</p>
+    </div>
+    <div class="module-list">
+      <div class="module-card">
+        <div class="module-title">🔌 UART (Universal Asynchronous Receiver Transmitter)</div>
+        <div class="module-desc">Giao tiếp nối tiếp không đồng bộ, truyền nhận dữ liệu giữa ESP32 và các thiết bị ngoại vi. Bao gồm mô phỏng, lý thuyết, và thực hành UART.</div>
+        <a class="module-link" href="uart_simulation.html">Khám phá mô đun UART</a>
+      </div>
+      <div class="module-card">
+        <div class="module-title">📡 I2C (Inter-Integrated Circuit)</div>
+        <div class="module-desc">Giao tiếp nối tiếp đa thiết bị, dùng cho cảm biến, màn hình, module ngoại vi. Bao gồm mô phỏng, lý thuyết, và thực hành I2C.</div>
+        <a class="module-link" href="i2c_simulator.html">Khám phá mô đun I2C</a>
+      </div>
+      <!-- Thêm các mô đun ESP32 khác tại đây nếu cần -->
+    </div>
+  </div>
+  <script>
+    // Tự động nhúng navbar nếu có file navbar.html
+    fetch('navbar.html').then(r => r.text()).then(html => {
+      document.getElementById('navbar-container').innerHTML = html;
+    });
+  </script>
+  <!-- Gemini Chatbot Widget -->
+  <script src="chatbot.js"></script>
+</body>
+</html>

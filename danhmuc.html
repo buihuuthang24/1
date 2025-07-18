@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh Mục Mô Phỏng - Nền Tảng Học Tập Tương Tác</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+
+        /* HEADER DANH MỤC - ĐỒNG BỘ HOME */
+        /* NAVBAR HEADER (giống home) */
+        .navbar-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+        }
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            text-decoration: none;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .logo::before {
+            content: '🎓';
+            font-size: 2rem;
+        }
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 2.5rem;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem 0;
+            background: none;
+            flex-wrap: nowrap;
+        }
+        .nav-menu a {
+            color: #fff;
+            text-decoration: none;
+            transition: background 0.25s, color 0.25s, box-shadow 0.25s;
+            padding: 0.85rem 2.7rem;
+            border-radius: 32px;
+            position: relative;
+            overflow: hidden;
+            background: rgba(255,255,255,0.18);
+            font-size: 1.18rem;
+            font-weight: 500;
+            text-align: center;
+            min-width: 140px;
+            max-width: 180px;
+            box-sizing: border-box;
+            box-shadow: 0 2px 12px rgba(102,126,234,0.10);
+            border: 1.5px solid rgba(255,255,255,0.18);
+            letter-spacing: 0.01em;
+            cursor: pointer;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .nav-menu a::before {
+            display: none;
+        }
+        .nav-menu a:hover {
+            background: #fff;
+            color: #764ba2;
+            box-shadow: 0 4px 18px rgba(118,75,162,0.13);
+            border: 1.5px solid #fff;
+        }
+
+        /* HEADER DANH MỤC MÔ PHỎNG (giữ nguyên thiết kế cũ) */
+        .danhmuc-header {
+            text-align: center;
+            margin-bottom: 60px;
+            color: white;
+            background: linear-gradient(135deg, #b8c6ff 0%, #6dd5ed 100%);
+            border-radius: 28px;
+            box-shadow: 0 8px 32px rgba(102,126,234,0.13);
+            padding: 48px 24px 36px 24px;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            position: relative;
+            transition: box-shadow 0.3s cubic-bezier(.4,0,.2,1), transform 0.3s cubic-bezier(.4,0,.2,1);
+        }
+        .danhmuc-header:hover {
+            box-shadow: 0 16px 48px 0 rgba(102,126,234,0.25), 0 2px 24px 0 rgba(118,75,162,0.13);
+            transform: scale(1.035) perspective(600px) translateY(-6px) rotateX(4deg);
+        }
+        .danhmuc-header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 8px rgba(102,126,234,0.18);
+        }
+        .danhmuc-header p {
+            font-size: 1.2rem;
+            opacity: 0.95;
+            max-width: 600px;
+            margin: 0 auto;
+            color: #2c3e50;
+            font-weight: 500;
+        }
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            text-decoration: none;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .logo::before {
+            content: '🎓';
+            font-size: 2rem;
+        }
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 2.5rem;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem 0;
+            background: none;
+            flex-wrap: nowrap;
+        }
+        .nav-menu a {
+            color: #fff;
+            text-decoration: none;
+            transition: background 0.25s, color 0.25s, box-shadow 0.25s;
+            padding: 0.85rem 2.7rem;
+            border-radius: 32px;
+            position: relative;
+            overflow: hidden;
+            background: rgba(255,255,255,0.18);
+            font-size: 1.18rem;
+            font-weight: 500;
+            text-align: center;
+            min-width: 140px;
+            max-width: 180px;
+            box-sizing: border-box;
+            box-shadow: 0 2px 12px rgba(102,126,234,0.10);
+            border: 1.5px solid rgba(255,255,255,0.18);
+            letter-spacing: 0.01em;
+            cursor: pointer;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .nav-menu a::before {
+            display: none;
+        }
+        .nav-menu a:hover {
+            background: #fff;
+            color: #764ba2;
+            box-shadow: 0 4px 18px rgba(118,75,162,0.13);
+            border: 1.5px solid #fff;
+        }
+
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+
+        .category-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .category-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.2);
+        }
+
+        .category-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .category-card.electronics::before {
+            background: linear-gradient(90deg, #fa709a 0%, #fee140 100%);
+        }
+
+        .category-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .category-title {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        .category-description {
+            color: #666;
+            font-size: 1rem;
+            line-height: 1.5;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .modules-preview {
+            display: none;
+            margin-top: 25px;
+            padding-top: 25px;
+            border-top: 2px solid #f0f0f0;
+        }
+
+        .modules-preview.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .modules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .module-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 12px;
+            border-left: 4px solid #4facfe;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .module-item:hover {
+            background: #e3f2fd;
+            transform: translateX(5px);
+        }
+
+        .electronics .module-item {
+            border-left-color: #fa709a;
+        }
+
+        .electronics .module-item:hover {
+            background: #fce4ec;
+        }
+
+        .module-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 6px;
+        }
+
+        .module-description {
+            color: #666;
+            font-size: 0.85rem;
+            line-height: 1.4;
+        }
+
+        .stats-bar {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #4facfe;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.85rem;
+        }
+
+        .toggle-btn {
+            background: linear-gradient(45deg, #4facfe, #00f2fe);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 15px;
+            width: 100%;
+        }
+
+        .toggle-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
+        }
+
+        .electronics .toggle-btn {
+            background: linear-gradient(45deg, #fa709a, #fee140);
+        }
+
+        .electronics .toggle-btn:hover {
+            box-shadow: 0 5px 15px rgba(250, 112, 154, 0.4);
+        }
+
+        @media (max-width: 768px) {
+            .categories-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .category-card {
+                padding: 20px 15px;
+            }
+            
+            .modules-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body style="opacity:1;transition:opacity 1.2s cubic-bezier(.4,0,.2,1);">
+
+    <!-- Header sẽ được nhúng tự động -->
+    <div id="navbar-placeholder" class="navbar-header"></div>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        fetch('navbar.html')
+          .then(response => response.text())
+          .then(data => {
+            document.getElementById('navbar-placeholder').innerHTML = data;
+            // Hiệu ứng chuyển cảnh fade khi click link
+            document.querySelectorAll('.nav-menu a').forEach(link => {
+              link.addEventListener('click', function(e) {
+                const href = this.getAttribute('href');
+                if (href && !href.startsWith('#')) {
+                  e.preventDefault();
+                  document.body.style.transition = 'opacity 0.5s cubic-bezier(.4,0,.2,1)';
+                  document.body.style.opacity = 0;
+                  setTimeout(() => { window.location.href = href; }, 400);
+                }
+              });
+            });
+          });
+      });
+    </script>
+    <div class="container" style="padding-top:110px">
+        <div class="danhmuc-header">
+            <h1>🎯 Danh Mục Mô Phỏng</h1>
+            <p>Khám phá các mô-đun học tập tương tác qua mô phỏng ảo - Nâng cao kỹ năng thực hành một cách sinh động và hiệu quả</p>
+        </div>
+
+        <div class="categories-grid">
+            <!-- Danh mục CNTT -->
+            <div class="category-card" id="cntt-card">
+                <div class="category-icon">💻</div>
+                <h2 class="category-title">CÔNG NGHỆ THÔNG TIN</h2>
+                <p class="category-description">
+                    Khám phá thế giới lập trình, mạng máy tính, cơ sở dữ liệu và bảo mật thông tin qua các mô phỏng tương tác chuyên sâu
+                </p>
+                
+                <div class="stats-bar">
+                    <div class="stat-item">
+                        <div class="stat-number">24</div>
+                        <div class="stat-label">Mô-đun</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">156</div>
+                        <div class="stat-label">Bài học</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">2.1K</div>
+                        <div class="stat-label">Học viên</div>
+                    </div>
+                </div>
+
+                <button class="toggle-btn" onclick="toggleModules('cntt')">
+                    <span id="cntt-btn-text">Xem Các Mô-đun</span>
+                </button>
+
+                <div class="modules-preview" id="cntt-modules">
+                    <div class="modules-grid">
+                        <div class="module-item">
+                            <div class="module-title">🔧 Lập trình & Thuật toán</div>
+                            <div class="module-description">Mô phỏng cấu trúc dữ liệu, visualize thuật toán sắp xếp, debugger ảo</div>
+                        </div>
+                        <div class="module-item">
+                            <div class="module-title">🌐 Hệ thống Mạng</div>
+                            <div class="module-description">Topology mạng, cấu hình Router/Switch, phân tích gói tin</div>
+                        </div>
+                        <div class="module-item">
+                            <div class="module-title">🗄️ Cơ sở Dữ liệu</div>
+                            <div class="module-description">Thiết kế ERD tương tác, thực thi SQL, tối ưu database</div>
+                        </div>
+                        <div class="module-item">
+                            <div class="module-title">🔒 Bảo mật Thông tin</div>
+                            <div class="module-description">Mô phỏng tấn công mạng, mã hóa/giải mã, penetration testing</div>
+                        </div>
+                        <div class="module-item">
+                            <div class="module-title">☁️ Cloud Computing</div>
+                            <div class="module-description">AWS/Azure simulation, container orchestration, microservices</div>
+                        </div>
+                        <div class="module-item">
+                            <div class="module-title">🤖 AI & Machine Learning</div>
+                            <div class="module-description">Neural network visualization, model training, data preprocessing</div>
+                        </div>
+                        <div class="module-item">
+                            <div class="module-title">⚙️ Lập trình Nhúng</div>
+                            <div class="module-description">Embedded C/C++, RTOS, firmware development, hardware interfacing</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Danh mục Điện tử -->
+            <div class="category-card electronics" id="electronics-card">
+                <div class="category-icon">⚡</div>
+                <h2 class="category-title">ĐIỆN TỬ</h2>
+                <p class="category-description">
+                    Thực hành với mạch điện, điện tử số, tương tự và hệ thống nhúng thông qua các công cụ mô phỏng chuyên nghiệp
+                </p>
+                
+                <div class="stats-bar">
+                    <div class="stat-item">
+                        <div class="stat-number">18</div>
+                        <div class="stat-label">Mô-đun</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">127</div>
+                        <div class="stat-label">Bài học</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">1.8K</div>
+                        <div class="stat-label">Học viên</div>
+                    </div>
+                </div>
+
+                <button class="toggle-btn" onclick="toggleModules('electronics')">
+                    <span id="electronics-btn-text">Xem Các Mô-đun</span>
+                </button>
+
+                <div class="modules-preview" id="electronics-modules">
+                    <div class="modules-grid">
+                        <div class="module-item">
+                            <div class="module-title">🔌 Mạch Điện Cơ bản</div>
+                            <div class="module-description">Mô phỏng mạch DC/AC, phân tích Kirchhoff, oscilloscope ảo</div>
+                        </div>
+                        <div class="module-item">
+                            <div class="module-title">💾 Điện tử Số</div>
+                            <div class="module-description">Thiết kế mạch logic, mô phỏng vi xử lý, FPGA programming</div>
+                        </div>
+                        <div class="module-item">
+                            <div class="module-title">📡 Điện tử Tương tự</div>
+                            <div class="module-description">Op-amp circuits, filter design, amplifier analysis</div>
+                        </div>
+                        <div class="module-item">
+                            <div class="module-title">🔧 Hệ thống Nhúng</div>
+                            <div class="module-description">Arduino/ESP32 simulator, IoT projects, sensor interfacing</div>
+                        </div>
+                        <div class="module-item">
+                            <div class="module-title">📶 Viễn thông</div>
+                            <div class="module-description">Antenna design, signal processing, communication protocols</div>
+                        </div>
+                        <div class="module-item">
+                            <div class="module-title">🏭 Tự động hóa</div>
+                            <div class="module-description">PLC programming, SCADA systems, industrial control</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleModules(category) {
+            const modules = document.getElementById(category + '-modules');
+            const btnText = document.getElementById(category + '-btn-text');
+            
+            if (modules.classList.contains('active')) {
+                modules.classList.remove('active');
+                btnText.textContent = 'Xem Các Mô-đun';
+            } else {
+                modules.classList.add('active');
+                btnText.textContent = 'Ẩn Các Mô-đun';
+            }
+        }
+
+        // Thêm hiệu ứng click cho từng module
+        document.querySelectorAll('.module-item').forEach(item => {
+            item.addEventListener('click', function() {
+                this.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    this.style.transform = 'scale(1)';
+                }, 150);
+                
+                // Có thể thêm code để chuyển đến trang chi tiết module
+                console.log('Clicked on:', this.querySelector('.module-title').textContent);
+            });
+        });
+
+        // Thêm hiệu ứng cho category cards
+        document.querySelectorAll('.category-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-10px) scale(1.02)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+    </script>
+  <script src="chatbot.js"></script>
+</body>
+</html>

@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Về Chúng Tôi - Nền Tảng Mô Phỏng Học Tập</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+
+        /* Header & Navigation (đồng bộ home.html) */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            text-decoration: none;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo::before {
+            content: '🎓';
+            font-size: 2rem;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 2.5rem;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem 0;
+            background: none;
+            flex-wrap: nowrap;
+        }
+
+        .nav-menu a {
+            color: #fff;
+            text-decoration: none;
+            transition: background 0.25s, color 0.25s, box-shadow 0.25s;
+            padding: 0.85rem 2.7rem;
+            border-radius: 32px;
+            position: relative;
+            overflow: hidden;
+            background: rgba(255,255,255,0.18);
+            font-size: 1.18rem;
+            font-weight: 500;
+            text-align: center;
+            min-width: 140px;
+            max-width: 180px;
+            box-sizing: border-box;
+            box-shadow: 0 2px 12px rgba(102,126,234,0.10);
+            border: 1.5px solid rgba(255,255,255,0.18);
+            letter-spacing: 0.01em;
+            cursor: pointer;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-menu a::before {
+            display: none;
+        }
+
+        .nav-menu a:hover {
+            background: #fff;
+            color: #764ba2;
+            box-shadow: 0 4px 18px rgba(118,75,162,0.13);
+            border: 1.5px solid #fff;
+        }
+
+        @media (max-width: 768px) {
+            .nav-menu {
+                display: none;
+            }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            padding-top: 110px;
+        }
+
+        /* Hero Section (giữ nguyên) */
+        .hero-section {
+            text-align: center;
+            color: white;
+            padding: 60px 0;
+            margin-bottom: 50px;
+        }
+
+        .hero-section h1 {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .hero-section p {
+            font-size: 1.3rem;
+            opacity: 0.9;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* Content Sections */
+        .content-section {
+            background: white;
+            margin-bottom: 40px;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .content-section:hover {
+            transform: translateY(-5px);
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            color: #2c3e50;
+            margin-bottom: 25px;
+            text-align: center;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(45deg, #4facfe, #00f2fe);
+            border-radius: 2px;
+        }
+
+        .section-content {
+            color: #555;
+            font-size: 1.1rem;
+            text-align: center;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* Mission Vision Values Grid */
+        .values-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .value-card {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border-left: 5px solid #4facfe;
+        }
+
+        .value-card:hover {
+            background: #e3f2fd;
+            transform: translateY(-5px);
+        }
+
+        .value-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .value-title {
+            font-size: 1.5rem;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .value-description {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        /* Team Section */
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .team-member {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .team-member:hover {
+            background: #e3f2fd;
+            transform: translateY(-5px);
+        }
+
+        .member-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #4facfe, #00f2fe);
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+        }
+
+        .member-name {
+            font-size: 1.3rem;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        .member-role {
+            color: #4facfe;
+            font-size: 1rem;
+            margin-bottom: 10px;
+        }
+
+        .member-description {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        /* Stats Section */
+        .stats-section {
+            background: linear-gradient(45deg, #4facfe, #00f2fe);
+            color: white;
+            padding: 50px 40px;
+            border-radius: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            text-align: center;
+        }
+
+        .stat-item {
+            padding: 20px;
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        /* Timeline Section */
+        .timeline {
+            position: relative;
+            margin-top: 40px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(45deg, #4facfe, #00f2fe);
+        }
+
+        .timeline-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .timeline-item:nth-child(odd) {
+            flex-direction: row-reverse;
+        }
+
+        .timeline-content {
+            flex: 1;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            margin: 0 30px;
+            position: relative;
+        }
+
+        .timeline-year {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #4facfe;
+            margin-bottom: 10px;
+        }
+
+        .timeline-title {
+            font-size: 1.2rem;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        .timeline-description {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .timeline-dot {
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(45deg, #4facfe, #00f2fe);
+            border-radius: 50%;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2;
+        }
+
+        /* Contact Section */
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .contact-item {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .contact-item:hover {
+            background: #e3f2fd;
+            transform: translateY(-5px);
+        }
+
+        .contact-icon {
+            font-size: 2.5rem;
+            color: #4facfe;
+            margin-bottom: 15px;
+        }
+
+        .contact-title {
+            font-size: 1.2rem;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .contact-info {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hero-section h1 {
+                font-size: 2.5rem;
+            }
+            
+            .hero-section p {
+                font-size: 1.1rem;
+            }
+            
+            .content-section {
+                padding: 25px;
+            }
+            
+            .section-title {
+                font-size: 2rem;
+            }
+            
+            .timeline::before {
+                left: 30px;
+            }
+            
+            .timeline-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .timeline-item:nth-child(odd) {
+                flex-direction: column;
+            }
+            
+            .timeline-content {
+                margin-left: 60px;
+                margin-right: 0;
+            }
+            
+            .timeline-dot {
+                left: 30px;
+            }
+        }
+    </style>
+</head>
+<body style="opacity:1;transition:opacity 1.2s cubic-bezier(.4,0,.2,1);">
+    <!-- Header sẽ được nhúng tự động -->
+    <div id="navbar-placeholder"></div>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        fetch('navbar.html')
+          .then(response => response.text())
+          .then(data => {
+            document.getElementById('navbar-placeholder').innerHTML = data;
+            // Hiệu ứng chuyển cảnh fade khi click link
+            document.querySelectorAll('.nav-menu a').forEach(link => {
+              link.addEventListener('click', function(e) {
+                const href = this.getAttribute('href');
+                if (href && !href.startsWith('#')) {
+                  e.preventDefault();
+                  document.body.style.transition = 'opacity 0.5s cubic-bezier(.4,0,.2,1)';
+                  document.body.style.opacity = 0;
+                  setTimeout(() => { window.location.href = href; }, 400);
+                }
+              });
+            });
+          });
+      });
+    </script>
+    <div class="container">
+        <!-- Hero Section -->
+        <div class="hero-section">
+            <h1>🚀 Về Chúng Tôi</h1>
+            <p>Chúng tôi là đội ngũ đam mê công nghệ, tận tâm tạo ra những trải nghiệm học tập tương tác và hiệu quả thông qua mô phỏng ảo</p>
+        </div>
+
+        <!-- Sứ mệnh & Tầm nhìn -->
+        <div class="content-section">
+            <h2 class="section-title">🎯 Sứ Mệnh & Tầm Nhìn</h2>
+            <div class="values-grid">
+                <div class="value-card">
+                    <div class="value-icon">🌟</div>
+                    <div class="value-title">Sứ Mệnh</div>
+                    <div class="value-description">
+                        Tạo ra nền tảng học tập tương tác thông qua mô phỏng ảo, giúp sinh viên tiếp cận kiến thức và thực hành các quy trình kỹ thuật một cách trực quan và sinh động.
+                    </div>
+                </div>
+                <div class="value-card">
+                    <div class="value-icon">🔮</div>
+                    <div class="value-title">Tầm Nhìn</div>
+                    <div class="value-description">
+                        Trở thành nền tảng mô phỏng học tập hàng đầu Việt Nam, nơi mọi sinh viên có thể thực hành và nâng cao kỹ năng chuyên môn một cách hiệu quả.
+                    </div>
+                </div>
+                <div class="value-card">
+                    <div class="value-icon">💡</div>
+                    <div class="value-title">Giá Trị Cốt Lõi</div>
+                    <div class="value-description">
+                        Đổi mới sáng tạo, chất lượng giáo dục, tương tác thực tế, và cam kết mang đến trải nghiệm học tập tốt nhất cho người học.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Thống kê -->
+        <div class="stats-section">
+            <h2 class="section-title" style="color: white; margin-bottom: 40px;">📊 Thành Tựu Của Chúng Tôi</h2>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number">50,000+</div>
+                    <div class="stat-label">Sinh viên đã học</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">200+</div>
+                    <div class="stat-label">Trường đại học hợp tác</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">42</div>
+                    <div class="stat-label">Mô-đun mô phỏng</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">95%</div>
+                    <div class="stat-label">Tỷ lệ hài lòng</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Đội ngũ -->
+        <div class="content-section">
+            <h2 class="section-title">👥 Đội Ngũ Chuyên Gia</h2>
+            <div class="section-content">
+                <p>Chúng tôi tự hào có đội ngũ chuyên gia giàu kinh nghiệm trong lĩnh vực giáo dục và công nghệ</p>
+            </div>
+            <div class="team-grid">
+                <div class="team-member">
+                    <div class="member-avatar">👨‍💼</div>
+                    <div class="member-name">Bùi Hữu Thắng</div>
+                    <div class="member-role">Nhà phát triển xây dựng</div>
+                    <div class="member-description">4 năm kinh nghiệm trong lĩnh vực EdTech và quản lý dự án công nghệ giáo dục</div>
+                </div>
+                <div class="team-member">
+                    <div class="member-avatar">👩‍💻</div>
+                    <div class="member-name">Phan Thiện Phước</div>
+                    <div class="member-role">Gíam đốc điều hành</div>
+                    <div class="member-description">Chuyên gia về mô phỏng 3D và thực tế ảo với hơn 10 năm kinh nghiệm</div>
+                </div>
+                <div class="team-member">
+                    <div class="member-avatar">👨‍🏫</div>
+                    <div class="member-name">Lê Hoàng Cường</div>
+                    <div class="member-role">Chuyên gia Giáo dục</div>
+                    <div class="member-description">Tiến sĩ Giáo dục học, chuyên về phương pháp học tập tương tác hiện đại</div>
+                </div>
+                <div class="team-member">
+                    <div class="member-avatar">👩‍🔬</div>
+                    <div class="member-name">Phạm Thị Dung</div>
+                    <div class="member-role">Chuyên gia Nội dung</div>
+                    <div class="member-description">Thạc sĩ CNTT, chuyên về thiết kế trải nghiệm người dùng và nội dung số</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lịch sử phát triển -->
+        <div class="content-section">
+            <h2 class="section-title">📅 Hành Trình Phát Triển</h2>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-year">2020</div>
+                        <div class="timeline-title">Khởi động dự án</div>
+                        <div class="timeline-description">Thành lập đội ngũ và bắt đầu nghiên cứu về mô phỏng học tập</div>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-year">2021</div>
+                        <div class="timeline-title">Phát triển MVP</div>
+                        <div class="timeline-description">Ra mắt phiên bản đầu tiên với 5 mô-đun mô phỏng cơ bản</div>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-year">2022</div>
+                        <div class="timeline-title">Mở rộng quy mô</div>
+                        <div class="timeline-description">Hợp tác với 50+ trường đại học và phát triển thêm 20 mô-đun</div>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-year">2023</div>
+                        <div class="timeline-title">Tích hợp AI</div>
+                        <div class="timeline-description">Ứng dụng AI để cá nhân hóa trải nghiệm học tập</div>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-year">2024</div>
+                        <div class="timeline-title">Nền tảng hoàn chỉnh</div>
+                        <div class="timeline-description">Hoàn thiện nền tảng với 42 mô-đun và 50,000+ người dùng</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Liên hệ -->
+        <div class="content-section">
+            <h2 class="section-title">📞 Liên Hệ Với Chúng Tôi</h2>
+            <div class="section-content">
+                <p>Hãy kết nối với chúng tôi để được tư vấn và hỗ trợ tốt nhất</p>
+            </div>
+            <div class="contact-grid">
+                <div class="contact-item">
+                    <div class="contact-icon">📧</div>
+                    <div class="contact-title">Email</div>
+                    <div class="contact-info">contact@simplatform.edu.vn</div>
+                </div>
+                <div class="contact-item">
+                    <div class="contact-icon">📱</div>
+                    <div class="contact-title">Hotline</div>
+                    <div class="contact-info">0823583538</div>
+                </div>
+                <div class="contact-item">
+                    <div class="contact-icon">🏢</div>
+                    <div class="contact-title">Địa chỉ</div>
+                    <div class="contact-info">TP. Hồ Chí Minh, Việt Nam</div>
+                </div>
+                <div class="contact-item">
+                    <div class="contact-icon">🌐</div>
+                    <div class="contact-title">Website</div>
+                    <div class="contact-info">www.simplatform.edu.vn</div>
+                </div>
+            </div>
+        </div>
+    </div>
+  <script src="chatbot.js"></script>
+</body>
+</html>

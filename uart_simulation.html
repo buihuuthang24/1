@@ -1,0 +1,1316 @@
+<!-- ...existing code... -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mô phỏng Giao thức UART - Tương tác</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 25px;
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+            color: white;
+        }
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(0, 255, 255, 0.1), transparent);
+            animation: headerGlow 4s linear infinite;
+        }
+        @keyframes headerGlow {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        /* Xóa dấu ngoặc đóng thừa gây lỗi cú pháp CSS */
+        }
+
+        .header h1 {
+            font-size: 3.5rem;
+            margin-bottom: 15px;
+            text-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+            background: linear-gradient(45deg, #00ffff, #ff00ff, #ffff00, #00ffff);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 3s ease-in-out infinite;
+            position: relative;
+            z-index: 1;
+        }
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        .header p {
+            color: #e0e0e0;
+            font-size: 1.2rem;
+            margin-top: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .simulation-area {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .uart-visual {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 40px 0;
+            padding: 20px;
+            background: linear-gradient(90deg, #f8f9fa, #e9ecef);
+            border-radius: 15px;
+            border: 2px solid #007bff;
+
+        }
+        .device {
+            padding: 20px;
+            background: linear-gradient(145deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            transform: scale(1);
+            transition: transform 0.3s ease;
+
+        }
+        .device:hover {
+            transform: scale(1.05);
+
+        }
+        .device h3 {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+
+        }
+        .wire-container {
+            flex: 1;
+            margin: 0 20px;
+            position: relative;
+
+        }
+        .wire {
+            height: 4px;
+            background: #28a745;
+            border-radius: 2px;
+            position: relative;
+            margin: 20px 0;
+            overflow: hidden;
+
+        }
+        .wire::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, #ffc107, transparent);
+            animation: signal-flow 2s linear infinite;
+
+        }
+        .wire-active::before {
+            animation: signal-flow 0.5s linear infinite;
+
+        }
+        .wire-label {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.9em;
+            font-weight: bold;
+            color: #333;
+
+        }
+        .data-display {
+            background: #1a1a1a;
+            color: #00ff00;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            margin: 20px 0;
+            min-height: 120px;
+            overflow-y: auto;
+            border: 2px solid #00ff00;
+
+        }
+        .bit-visualization {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border: 2px solid #007bff;
+
+        }
+        .bit {
+            width: 40px;
+            height: 40px;
+            margin: 0 2px;
+            background: #dc3545;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+            border: 3px solid #333;
+
+        }
+        .bit.high {
+            background: #28a745;
+            transform: scale(1.1);
+            box-shadow: 0 0 15px rgba(40,167,69,0.6);
+
+        }
+        .bit.transmitting {
+            animation: pulse 0.5s ease-in-out infinite alternate;
+
+        }
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+
+        }
+        .control-group {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #dee2e6;
+
+        }
+        .control-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #495057;
+
+        }
+        .control-group input, .control-group select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ced4da;
+            border-radius: 5px;
+            font-size: 1em;
+
+        }
+        .control-group input:focus, .control-group select:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
+
+        }
+        .buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin: 30px 0;
+
+        }
+        .btn {
+            padding: 12px 30px;
+            font-size: 1em;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+
+        }
+        .btn-primary {
+            background: linear-gradient(45deg, #007bff, #0056b3);
+            color: white;
+
+        }
+        .btn-primary:hover {
+            background: linear-gradient(45deg, #0056b3, #003d82);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,123,255,0.4);
+
+        }
+        .btn-success {
+            background: linear-gradient(45deg, #28a745, #1e7e34);
+            color: white;
+
+        }
+        .btn-success:hover {
+            background: linear-gradient(45deg, #1e7e34, #155724);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40,167,69,0.4);
+
+        }
+        .btn-warning {
+            background: linear-gradient(45deg, #ffc107, #e0a800);
+            color: #333;
+
+        }
+        .btn-warning:hover {
+            background: linear-gradient(45deg, #e0a800, #d39e00);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255,193,7,0.4);
+
+        }
+        .info-panel {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 5px solid #2196f3;
+            margin: 20px 0;
+
+        }
+        .info-panel h3 {
+            color: #1976d2;
+            margin-bottom: 10px;
+
+        }
+        .status-bar {
+            display: flex;
+            justify-content: space-around;
+            background: #343a40;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+
+        }
+        .status-item {
+            text-align: center;
+
+        }
+        .status-item .label {
+            font-size: 0.9em;
+            opacity: 0.7;
+
+        }
+        .status-item .value {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-top: 5px;
+
+        }
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+        }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+        }
+        @keyframes signal-flow {
+            0% {
+                left: -100%;
+            }
+            100% {
+                left: 100%;
+            }
+
+        }
+        @keyframes pulse {
+            0% {
+                transform: scale(1.1);
+                box-shadow: 0 0 15px rgba(40,167,69,0.6);
+            }
+            100% {
+                transform: scale(1.3);
+                box-shadow: 0 0 25px rgba(40,167,69,0.9);
+            }
+
+        }
+        .wave-animation {
+            width: 100%;
+            height: 60px;
+            background: #1a1a1a;
+            border-radius: 5px;
+            position: relative;
+            overflow: hidden;
+            margin: 10px 0;
+
+        }
+        .wave-line {
+            position: absolute;
+            top: 30px;
+            left: 0;
+            height: 2px;
+            background: #00ff00;
+            width: 100%;
+
+        }
+        .wave-signal {
+            position: absolute;
+            top: 0;
+            width: 20px;
+            height: 100%;
+            background: linear-gradient(180deg, transparent 20%, #00ff00 30%, #00ff00 70%, transparent 80%);
+            animation: wave-move 1s linear infinite;
+
+        }
+        @keyframes wave-move {
+            0% {
+                left: -20px;
+            }
+            100% {
+                left: 100%;
+            }
+
+        }
+        /* Theory and Exercise Styles */
+        .theory-section, .exercise-section {
+            margin: 40px 0;
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+
+        }
+        .theory-tabs, .exercise-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e9ecef;
+
+        }
+        .tab-btn {
+            padding: 10px 20px;
+            background: #f8f9fa;
+            border: none;
+            border-radius: 10px 10px 0 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+
+        }
+        .tab-btn.active {
+            background: #007bff;
+            color: white;
+
+        }
+        .tab-btn:hover {
+            background: #0056b3;
+            color: white;
+
+        }
+        .theory-content, .exercise-content {
+            display: none;
+            animation: fadeInUp 0.5s ease-out;
+
+        }
+        .theory-content.active, .exercise-content.active {
+            display: block;
+
+        }
+        .frame-structure {
+            display: flex;
+            gap: 2px;
+            margin: 20px 0;
+            justify-content: center;
+
+        }
+        .frame-bit {
+            width: 60px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            font-size: 0.8em;
+            border-radius: 5px;
+
+        }
+        .frame-bit.start {
+            background: #dc3545;
+
+        }
+        .frame-bit.data {
+            background: #007bff;
+
+        }
+        .frame-bit.parity {
+            background: #ffc107;
+            color: #333;
+
+        }
+        .frame-bit.stop {
+            background: #28a745;
+
+        }
+        .exercise-interactive {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border: 2px solid #dee2e6;
+
+        }
+        .exercise-interactive textarea {
+            width: 100%;
+            height: 80px;
+            padding: 10px;
+            border: 2px solid #ced4da;
+            border-radius: 5px;
+            font-family: monospace;
+            margin: 10px 0;
+
+        }
+        .exercise-interactive input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ced4da;
+            border-radius: 5px;
+            margin: 10px 0;
+
+        }
+        .calculation-helper {
+            background: #e3f2fd;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+
+        }
+        .calc-step {
+            margin: 10px 0;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+            border-left: 4px solid #2196f3;
+
+        }
+        .task-list {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+
+        }
+        .task-item {
+            margin: 10px 0;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+
+        }
+        .task-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+
+        }
+        .quiz-question {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #28a745;
+
+        }
+        .quiz-options {
+            margin: 10px 0;
+
+        }
+        .quiz-options label {
+            display: block;
+            margin: 5px 0;
+            padding: 5px;
+            cursor: pointer;
+
+        }
+        .quiz-options input[type="radio"] {
+            margin-right: 10px;
+
+        }
+        .result-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+
+        }
+        .result-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔌 Mô phỏng Giao thức UART</h1>
+            <p>Hiểu rõ cách thức hoạt động của Universal Asynchronous Receiver Transmitter</p>
+        </div>
+
+        <div class="simulation-area">
+            <div class="uart-visual">
+                <div class="device">
+                    <h3>📱 Thiết bị A</h3>
+                    <p>Transmitter</p>
+                </div>
+                
+                <div class="wire-container">
+                    <div class="wire" id="txWire">
+                        <div class="wire-label">TX → RX</div>
+                    </div>
+                    <div class="wire" id="rxWire">
+                        <div class="wire-label">RX ← TX</div>
+                    </div>
+                </div>
+                
+                <div class="device">
+                    <h3>💻 Thiết bị B</h3>
+                    <p>Receiver</p>
+                </div>
+            </div>
+
+            <div class="status-bar">
+                <div class="status-item">
+                    <div class="label">Trạng thái</div>
+                    <div class="value" id="statusValue">Sẵn sàng</div>
+                </div>
+                <div class="status-item">
+                    <div class="label">Baud Rate</div>
+                    <div class="value" id="baudValue">9600</div>
+                </div>
+                <div class="status-item">
+                    <div class="label">Dữ liệu gửi</div>
+                    <div class="value" id="sentData">0</div>
+                </div>
+                <div class="status-item">
+                    <div class="label">Thời gian bit</div>
+                    <div class="value" id="bitTime">104 μs</div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <div class="control-group">
+                    <label for="dataInput">Dữ liệu gửi:</label>
+                    <input type="text" id="dataInput" placeholder="Nhập dữ liệu..." maxlength="20" value="Hello">
+                </div>
+                
+                <div class="control-group">
+                    <label for="baudRate">Baud Rate:</label>
+                    <select id="baudRate">
+                        <option value="9600">9600</option>
+                        <option value="19200">19200</option>
+                        <option value="38400">38400</option>
+                        <option value="57600">57600</option>
+                        <option value="115200">115200</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label for="dataBits">Data Bits:</label>
+                    <select id="dataBits">
+                        <option value="7">7 bits</option>
+                        <option value="8" selected>8 bits</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label for="parity">Parity:</label>
+                    <select id="parity">
+                        <option value="none" selected>None</option>
+                        <option value="even">Even</option>
+                        <option value="odd">Odd</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label for="stopBits">Stop Bits:</label>
+                    <select id="stopBits">
+                        <option value="1" selected>1</option>
+                        <option value="2">2</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label for="speed">Tốc độ mô phỏng:</label>
+                    <select id="speed">
+                        <option value="0.5">Rất chậm</option>
+                        <option value="1" selected>Chậm</option>
+                        <option value="2">Bình thường</option>
+                        <option value="4">Nhanh</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="buttons">
+                <button class="btn btn-primary" onclick="startTransmission()">🚀 Bắt đầu truyền</button>
+                <button class="btn btn-warning" onclick="pauseTransmission()">⏸️ Tạm dừng</button>
+                <button class="btn btn-success" onclick="resetSimulation()">🔄 Đặt lại</button>
+            </div>
+
+            <div class="info-panel">
+                <h3>📊 Trực quan hoá Bit</h3>
+                <div class="bit-visualization" id="bitVisualization">
+                    <!-- Bits sẽ được tạo động -->
+                </div>
+            </div>
+
+            <div class="info-panel">
+                <h3>📈 Dạng sóng tín hiệu</h3>
+                <div class="wave-animation" id="waveAnimation">
+                    <div class="wave-line"></div>
+                    <div class="wave-signal" id="waveSignal"></div>
+                </div>
+            </div>
+
+            <div class="data-display" id="dataDisplay">
+                <div style="color: #00ff00; font-weight: bold;">═══ UART Monitor ═══</div>
+                <div>Sẵn sàng truyền dữ liệu...</div>
+            </div>
+
+            <!-- Theory Section -->
+            <div class="theory-section">
+                <h2 style="text-align: center; color: #007bff; margin: 30px 0;">📚 Lý thuyết UART</h2>
+                
+                <div class="theory-tabs">
+                    <button class="tab-btn active" data-tab="basics">Cơ bản</button>
+                    <button class="tab-btn" data-tab="structure">Cấu trúc Frame</button>
+                    <button class="tab-btn" data-tab="parameters">Thông số</button>
+                    <button class="tab-btn" data-tab="applications">Ứng dụng</button>
+                </div>
+
+                <div id="theory-basics" class="theory-content active">
+                    <div class="info-panel">
+                        <h3>🔍 UART là gì?</h3>
+                        <p><strong>UART (Universal Asynchronous Receiver Transmitter)</strong> là giao thức truyền thông nối tiếp không đồng bộ được sử dụng rộng rãi trong các hệ thống nhúng.</p>
+                        
+                        <h4>Đặc điểm chính:</h4>
+                        <ul>
+                            <li>🔄 <strong>Không đồng bộ:</strong> Không cần tín hiệu clock chung</li>
+                            <li>📡 <strong>Nối tiếp:</strong> Truyền từng bit một theo thời gian</li>
+                            <li>🔗 <strong>Đơn giản:</strong> Chỉ cần 2 dây TX (truyền) và RX (nhận)</li>
+                            <li>⚡ <strong>Linh hoạt:</strong> Nhiều tốc độ baud và cấu hình khác nhau</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div id="theory-structure" class="theory-content">
+                    <div class="info-panel">
+                        <h3>🏗️ Cấu trúc Frame UART</h3>
+                        <div class="frame-structure">
+                            <div class="frame-bit start">START</div>
+                            <div class="frame-bit data">D0</div>
+                            <div class="frame-bit data">D1</div>
+                            <div class="frame-bit data">D2</div>
+                            <div class="frame-bit data">D3</div>
+                            <div class="frame-bit data">D4</div>
+                            <div class="frame-bit data">D5</div>
+                            <div class="frame-bit data">D6</div>
+                            <div class="frame-bit data">D7</div>
+                            <div class="frame-bit parity">P</div>
+                            <div class="frame-bit stop">STOP</div>
+                        </div>
+                        
+                        <h4>Chi tiết từng phần:</h4>
+                        <ul>
+                            <li>🟢 <strong>Start Bit:</strong> Luôn là 0, báo hiệu bắt đầu frame</li>
+                            <li>🔵 <strong>Data Bits:</strong> 5-8 bits dữ liệu (thường là 8), LSB trước</li>
+                            <li>🟡 <strong>Parity Bit:</strong> Kiểm tra lỗi (tùy chọn)</li>
+                            <li>🔴 <strong>Stop Bit(s):</strong> 1-2 bits, luôn là 1, báo hiệu kết thúc</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div id="theory-parameters" class="theory-content">
+                    <div class="info-panel">
+                        <h3>⚙️ Thông số cấu hình</h3>
+                        
+                        <h4>📊 Baud Rate (tốc độ baud):</h4>
+                        <p>Số bit được truyền trong 1 giây. Thông dụng: 9600, 19200, 38400, 57600, 115200 bps</p>
+                        
+                        <h4>🔢 Data Bits:</h4>
+                        <p>Số bit dữ liệu trong mỗi frame (5-8 bits). Thường dùng 8 bits để truyền ký tự ASCII.</p>
+                        
+                        <h4>🛡️ Parity Bit:</h4>
+                        <ul>
+                            <li><strong>None:</strong> Không có bit kiểm tra</li>
+                            <li><strong>Even:</strong> Tổng số bit 1 phải chẵn</li>
+                            <li><strong>Odd:</strong> Tổng số bit 1 phải lẻ</li>
+                        </ul>
+                        
+                        <h4>🛑 Stop Bits:</h4>
+                        <p>1 hoặc 2 bits để đảm bảo khoảng cách giữa các frame.</p>
+                    </div>
+                </div>
+
+                <div id="theory-applications" class="theory-content">
+                    <div class="info-panel">
+                        <h3>🌟 Ứng dụng thực tế</h3>
+                        
+                        <h4>💻 Lập trình & Debug:</h4>
+                        <ul>
+                            <li>Serial Monitor trong Arduino IDE</li>
+                            <li>Debug console trong vi điều khiển</li>
+                            <li>Giao tiếp PC với board mạch</li>
+                        </ul>
+                        
+                        <h4>🔧 Thiết bị IoT:</h4>
+                        <ul>
+                            <li>Cảm biến nhiệt độ, độ ẩm</li>
+                            <li>Module GPS, GSM</li>
+                            <li>Màn hình LCD, OLED</li>
+                        </ul>
+                        
+                        <h4>🏭 Công nghiệp:</h4>
+                        <ul>
+                            <li>PLC và HMI</li>
+                            <li>Hệ thống đo lường</li>
+                            <li>Thiết bị tự động hóa</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Exercise Section -->
+            <div class="exercise-section">
+                <h2 style="text-align: center; color: #28a745; margin: 30px 0;">🎯 Bài tập thực hành</h2>
+                
+                <div class="exercise-tabs">
+                    <button class="tab-btn active" data-tab="basic">Cơ bản</button>
+                    <button class="tab-btn" data-tab="calculation">Tính toán</button>
+                    <button class="tab-btn" data-tab="practical">Thực hành</button>
+                    <button class="tab-btn" data-tab="quiz">Trắc nghiệm</button>
+                </div>
+
+                <div id="exercise-basic" class="exercise-content active">
+                    <div class="info-panel">
+                        <h3>📝 Bài tập 1: Phân tích Frame</h3>
+                        <p><strong>Đề bài:</strong> Phân tích frame UART sau: <code>0 11000001 0 1</code></p>
+                        
+                        <div class="exercise-interactive">
+                            <label>Nhập phân tích của bạn:</label>
+                            <textarea id="exercise1-answer" placeholder="Ví dụ: Start bit = 0, Data = 11000001 (0x83), Parity = 0, Stop = 1"></textarea>
+                            <button class="btn btn-primary" onclick="checkExercise1()">Kiểm tra</button>
+                            <div id="exercise1-result"></div>
+                        </div>
+                    </div>
+
+                    <div class="info-panel">
+                        <h3>📝 Bài tập 2: Tạo Frame</h3>
+                        <p><strong>Đề bài:</strong> Tạo frame UART để truyền ký tự 'A' (ASCII 65) với cấu hình: 8 data bits, even parity, 1 stop bit</p>
+                        
+                        <div class="exercise-interactive">
+                            <label>Nhập frame của bạn:</label>
+                            <input type="text" id="exercise2-answer" placeholder="Ví dụ: 0 10000010 1 1">
+                            <button class="btn btn-primary" onclick="checkExercise2()">Kiểm tra</button>
+                            <div id="exercise2-result"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="exercise-calculation" class="exercise-content">
+                    <div class="info-panel">
+                        <h3>🧮 Bài tập 3: Tính toán thời gian</h3>
+                        <p><strong>Đề bài:</strong> Tính thời gian truyền 1 frame UART với baud rate 9600 bps, 8 data bits, 1 parity bit, 1 stop bit</p>
+                        
+                        <div class="calculation-helper">
+                            <div class="calc-step">
+                                <strong>Bước 1:</strong> Tính tổng số bit = 1 (start) + 8 (data) + 1 (parity) + 1 (stop) = 11 bits
+                            </div>
+                            <div class="calc-step">
+                                <strong>Bước 2:</strong> Thời gian 1 bit = 1/9600 = 104.17 μs
+                            </div>
+                            <div class="calc-step">
+                                <strong>Bước 3:</strong> Thời gian 1 frame = 11 × 104.17 = 1145.87 μs
+                            </div>
+                        </div>
+                        
+                        <div class="exercise-interactive">
+                            <label>Tính thời gian truyền cho cấu hình sau:</label>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0;">
+                                <div>
+                                    <label>Baud Rate:</label>
+                                    <input type="number" id="calc-baud" value="19200">
+                                </div>
+                                <div>
+                                    <label>Data Bits:</label>
+                                    <input type="number" id="calc-data" value="8">
+                                </div>
+                                <div>
+                                    <label>Parity (0/1):</label>
+                                    <input type="number" id="calc-parity" value="0">
+                                </div>
+                                <div>
+                                    <label>Stop Bits:</label>
+                                    <input type="number" id="calc-stop" value="1">
+                                </div>
+                            </div>
+                            <button class="btn btn-primary" onclick="calculateFrameTime()">Tính toán</button>
+                            <div id="calc-result"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="exercise-practical" class="exercise-content">
+                    <div class="info-panel">
+                        <h3>🔬 Bài tập 4: Thực hành mô phỏng</h3>
+                        <p><strong>Nhiệm vụ:</strong> Sử dụng mô phỏng trên để hoàn thành các task sau:</p>
+                        
+                        <div class="task-list">
+                            <div class="task-item">
+                                <input type="checkbox" id="task1"> 
+                                <label for="task1">Truyền chuỗi "Hello World" với baudrate 9600</label>
+                            </div>
+                            <div class="task-item">
+                                <input type="checkbox" id="task2"> 
+                                <label for="task2">Thay đổi baudrate thành 115200 và quan sát sự khác biệt</label>
+                            </div>
+                            <div class="task-item">
+                                <input type="checkbox" id="task3"> 
+                                <label for="task3">Bật even parity và truyền ký tự 'A'</label>
+                            </div>
+                            <div class="task-item">
+                                <input type="checkbox" id="task4"> 
+                                <label for="task4">Sử dụng 7 data bits và 2 stop bits</label>
+                            </div>
+                            <div class="task-item">
+                                <input type="checkbox" id="task5"> 
+                                <label for="task5">Quan sát dạng sóng và bit visualization</label>
+                            </div>
+                        </div>
+                        
+                        <button class="btn btn-success" onclick="checkTasks()">Kiểm tra hoàn thành</button>
+                        <div id="task-result"></div>
+                    </div>
+                </div>
+
+                <div id="exercise-quiz" class="exercise-content">
+                    <div class="info-panel">
+                        <h3>❓ Trắc nghiệm</h3>
+                        
+                        <div class="quiz-question">
+                            <p><strong>Câu 1:</strong> Start bit trong UART luôn có giá trị:</p>
+                            <div class="quiz-options">
+                                <label><input type="radio" name="q1" value="0"> 0</label>
+                                <label><input type="radio" name="q1" value="1"> 1</label>
+                                <label><input type="radio" name="q1" value="random"> Ngẫu nhiên</label>
+                            </div>
+                        </div>
+
+                        <div class="quiz-question">
+                            <p><strong>Câu 2:</strong> Với baudrate 9600, thời gian truyền 1 bit là:</p>
+                            <div class="quiz-options">
+                                <label><input type="radio" name="q2" value="104"> 104 μs</label>
+                                <label><input type="radio" name="q2" value="52"> 52 μs</label>
+                                <label><input type="radio" name="q2" value="208"> 208 μs</label>
+                            </div>
+                        </div>
+
+                        <div class="quiz-question">
+                            <p><strong>Câu 3:</strong> UART truyền data bits theo thứ tự:</p>
+                            <div class="quiz-options">
+                                <label><input type="radio" name="q3" value="lsb"> LSB trước (bit 0 đầu tiên)</label>
+                                <label><input type="radio" name="q3" value="msb"> MSB trước (bit 7 đầu tiên)</label>
+                                <label><input type="radio" name="q3" value="random"> Thứ tự ngẫu nhiên</label>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-primary" onclick="checkQuiz()">Nộp bài</button>
+                        <div id="quiz-result"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isTransmitting = false;
+        let isPaused = false;
+        let currentBitIndex = 0;
+        let currentFrame = [];
+        let transmissionSpeed = 1;
+        let animationId;
+
+        function updateStatus() {
+            const baudRate = document.getElementById('baudRate').value;
+            const bitTime = Math.round(1000000 / parseInt(baudRate));
+            
+            document.getElementById('baudValue').textContent = baudRate;
+            document.getElementById('bitTime').textContent = `${bitTime} μs`;
+            
+            transmissionSpeed = parseFloat(document.getElementById('speed').value);
+        }
+
+        function createBitFrame(char) {
+            const dataBits = parseInt(document.getElementById('dataBits').value);
+            const parity = document.getElementById('parity').value;
+            const stopBits = parseInt(document.getElementById('stopBits').value);
+            
+            let frame = [];
+            
+            // Start bit (luôn là 0)
+            frame.push({value: 0, type: 'start', label: 'START'});
+            
+            // Data bits (LSB first)
+            const charCode = char.charCodeAt(0);
+            for (let i = 0; i < dataBits; i++) {
+                const bit = (charCode >> i) & 1;
+                frame.push({value: bit, type: 'data', label: `D${i}`});
+            }
+            
+            // Parity bit
+            if (parity !== 'none') {
+                const dataOnes = frame.filter(b => b.type === 'data' && b.value === 1).length;
+                let parityBit = 0;
+                if (parity === 'even') {
+                    parityBit = dataOnes % 2;
+                } else {
+                    parityBit = (dataOnes + 1) % 2;
+                }
+                frame.push({value: parityBit, type: 'parity', label: 'P'});
+            }
+            
+            // Stop bits (luôn là 1)
+            for (let i = 0; i < stopBits; i++) {
+                frame.push({value: 1, type: 'stop', label: 'STOP'});
+            }
+            
+            return frame;
+        }
+
+        function createBitVisualization(frame) {
+            const container = document.getElementById('bitVisualization');
+            container.innerHTML = '';
+            
+            frame.forEach((bit, index) => {
+                const bitElement = document.createElement('div');
+                bitElement.className = `bit ${bit.value ? 'high' : 'low'}`;
+                bitElement.textContent = bit.value;
+                bitElement.title = `${bit.label}: ${bit.value}`;
+                bitElement.id = `bit-${index}`;
+                container.appendChild(bitElement);
+            });
+        }
+
+        function animateBitTransmission(bitIndex) {
+            // Reset tất cả bits
+            document.querySelectorAll('.bit').forEach(bit => {
+                bit.classList.remove('transmitting');
+            });
+            
+            // Highlight bit hiện tại
+            const currentBit = document.getElementById(`bit-${bitIndex}`);
+            if (currentBit) {
+                currentBit.classList.add('transmitting');
+            }
+            
+            // Animate wire
+            const wire = document.getElementById('txWire');
+            wire.classList.add('wire-active');
+            
+            // Animate wave
+            const waveSignal = document.getElementById('waveSignal');
+            waveSignal.style.animationDuration = `${1000 / transmissionSpeed}ms`;
+        }
+
+        function logToDisplay(message, type = 'info') {
+            const display = document.getElementById('dataDisplay');
+            const timestamp = new Date().toLocaleTimeString();
+            const colors = {
+                info: '#00ff00',
+                warning: '#ffff00',
+                error: '#ff0000',
+                success: '#00ffff'
+            };
+            
+            const logEntry = document.createElement('div');
+            logEntry.style.color = colors[type] || '#00ff00';
+            logEntry.innerHTML = `[${timestamp}] ${message}`;
+            display.appendChild(logEntry);
+            display.scrollTop = display.scrollHeight;
+        }
+
+        async function startTransmission() {
+            if (isTransmitting && !isPaused) return;
+            
+            if (isPaused) {
+                isPaused = false;
+                document.getElementById('statusValue').textContent = 'Đang truyền';
+                continueTransmission();
+                return;
+            }
+            
+            const data = document.getElementById('dataInput').value;
+            if (!data) {
+                logToDisplay('Vui lòng nhập dữ liệu để truyền!', 'warning');
+                return;
+            }
+            
+            isTransmitting = true;
+            isPaused = false;
+            document.getElementById('statusValue').textContent = 'Đang truyền';
+            
+            logToDisplay(`Bắt đầu truyền: "${data}"`, 'success');
+            logToDisplay(`Cấu hình: ${document.getElementById('baudRate').value} baud, ${document.getElementById('dataBits').value} data bits, ${document.getElementById('parity').value} parity, ${document.getElementById('stopBits').value} stop bits`);
+            
+            for (let i = 0; i < data.length; i++) {
+                if (!isTransmitting || isPaused) break;
+                
+                const char = data[i];
+                currentFrame = createBitFrame(char);
+                createBitVisualization(currentFrame);
+                
+                logToDisplay(`Truyền ký tự: '${char}' (0x${char.charCodeAt(0).toString(16).padStart(2, '0')})`);
+                
+                // Truyền từng bit
+                for (let bitIndex = 0; bitIndex < currentFrame.length; bitIndex++) {
+                    if (!isTransmitting || isPaused) break;
+                    
+                    currentBitIndex = bitIndex;
+                    animateBitTransmission(bitIndex);
+                    
+                    const bit = currentFrame[bitIndex];
+                    logToDisplay(`  Bit ${bitIndex}: ${bit.value} (${bit.label})`);
+                    
+                    await new Promise(resolve => {
+                        setTimeout(resolve, 1000 / transmissionSpeed);
+                    });
+                }
+                
+                await new Promise(resolve => setTimeout(resolve, 200 / transmissionSpeed));
+            }
+            
+            if (isTransmitting && !isPaused) {
+                logToDisplay('Truyền hoàn tất!', 'success');
+                document.getElementById('statusValue').textContent = 'Hoàn tất';
+                document.getElementById('sentData').textContent = data.length;
+                
+                // Reset animations
+                document.querySelectorAll('.bit').forEach(bit => {
+                    bit.classList.remove('transmitting');
+                });
+                document.getElementById('txWire').classList.remove('wire-active');
+                
+                isTransmitting = false;
+            }
+        }
+
+        function continueTransmission() {
+            // Logic để tiếp tục truyền từ vị trí hiện tại
+            startTransmission();
+        }
+
+        function pauseTransmission() {
+            if (!isTransmitting) return;
+            
+            isPaused = true;
+            document.getElementById('statusValue').textContent = 'Tạm dừng';
+            logToDisplay('Truyền bị tạm dừng', 'warning');
+        }
+
+        function resetSimulation() {
+            isTransmitting = false;
+            isPaused = false;
+            currentBitIndex = 0;
+            currentFrame = [];
+            
+            document.getElementById('statusValue').textContent = 'Sẵn sàng';
+            document.getElementById('sentData').textContent = '0';
+            
+            // Reset visualizations
+            document.getElementById('bitVisualization').innerHTML = '<div style="color: #666; font-style: italic;">Chờ dữ liệu...</div>';
+            document.getElementById('txWire').classList.remove('wire-active');
+            
+            // Clear log
+            document.getElementById('dataDisplay').innerHTML = `
+                <div style="color: #00ff00; font-weight: bold;">═══ UART Monitor ═══</div>
+                <div>Sẵn sàng truyền dữ liệu...</div>
+            `;
+            
+            logToDisplay('Đặt lại mô phỏng', 'info');
+        }
+
+        // Event listeners
+        document.getElementById('baudRate').addEventListener('change', updateStatus);
+        document.getElementById('speed').addEventListener('change', updateStatus);
+        document.getElementById('dataInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                startTransmission();
+            }
+        });
+
+        // Tab switching logic for theory tabs
+        document.querySelectorAll('.theory-tabs .tab-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                const tabName = this.getAttribute('data-tab');
+                document.querySelectorAll('.theory-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                document.querySelectorAll('.theory-tabs .tab-btn').forEach(b => b.classList.remove('active'));
+                document.getElementById(`theory-${tabName}`).classList.add('active');
+                this.classList.add('active');
+            });
+        });
+
+        // Tab switching logic for exercise tabs
+        document.querySelectorAll('.exercise-tabs .tab-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                const tabName = this.getAttribute('data-tab');
+                document.querySelectorAll('.exercise-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                document.querySelectorAll('.exercise-tabs .tab-btn').forEach(b => b.classList.remove('active'));
+                document.getElementById(`exercise-${tabName}`).classList.add('active');
+                this.classList.add('active');
+            });
+        });
+
+        // Exercise Functions
+        function checkExercise1() {
+            const answer = document.getElementById('exercise1-answer').value.toLowerCase();
+            const result = document.getElementById('exercise1-result');
+            
+            if (answer.includes('start') && answer.includes('0') && 
+                answer.includes('11000001') && answer.includes('parity') && 
+                answer.includes('stop')) {
+                result.innerHTML = `<div class="result-success">✅ Chính xác! Frame: Start=0, Data=11000001 (0x83='S'), Parity=0 (even), Stop=1</div>`;
+            } else {
+                result.innerHTML = `<div class="result-error">❌ Chưa chính xác. Gợi ý: Phân tích từng phần của frame từ trái sang phải</div>`;
+            }
+        }
+
+        function checkExercise2() {
+            const answer = document.getElementById('exercise2-answer').value.replace(/\s+/g, '');
+            const result = document.getElementById('exercise2-result');
+            
+            // 'A' = 65 = 01000001 in binary, with even parity = 1
+            const correctAnswer = '010000011';
+            
+            if (answer === correctAnswer) {
+                result.innerHTML = `<div class="result-success">✅ Chính xác! Frame cho 'A': 0 10000010 1 1</div>`;
+            } else {
+                result.innerHTML = `<div class="result-error">❌ Chưa đúng. Gợi ý: A=65=01000001, even parity với 2 bit 1 → parity=0</div>`;
+            }
+        }
+
+        function calculateFrameTime() {
+            const baud = parseInt(document.getElementById('calc-baud').value);
+            const dataBits = parseInt(document.getElementById('calc-data').value);
+            const parity = parseInt(document.getElementById('calc-parity').value);
+            const stopBits = parseInt(document.getElementById('calc-stop').value);
+            
+            const totalBits = 1 + dataBits + parity + stopBits; // 1 start bit
+            const bitTime = 1000000 / baud; // microseconds
+            const frameTime = totalBits * bitTime;
+            
+            const result = document.getElementById('calc-result');
+            result.innerHTML = `
+                <div class="result-success">
+                    <strong>Kết quả:</strong><br>
+                    • Tổng bits: ${totalBits} bits<br>
+                    • Thời gian 1 bit: ${bitTime.toFixed(2)} μs<br>
+                    • Thời gian 1 frame: ${frameTime.toFixed(2)} μs<br>
+                    • Tốc độ truyền: ${(1000000/frameTime).toFixed(0)} frames/giây
+                </div>
+            `;
+        }
+
+        function checkTasks() {
+            const tasks = document.querySelectorAll('.task-item input[type="checkbox"]');
+            const completed = Array.from(tasks).filter(task => task.checked).length;
+            const result = document.getElementById('task-result');
+            
+            if (completed === tasks.length) {
+                result.innerHTML = `<div class="result-success">🎉 Hoàn thành tất cả ${tasks.length} nhiệm vụ! Bạn đã nắm vững cách sử dụng mô phỏng UART.</div>`;
+            } else {
+                result.innerHTML = `<div class="result-error">📝 Đã hoàn thành ${completed}/${tasks.length} nhiệm vụ. Hãy thử các tính năng còn lại!</div>`;
+            }
+        }
+
+        function checkQuiz() {
+            const answers = {
+                q1: '0', // Start bit always 0
+                q2: '104', // 1/9600 = 104 μs
+                q3: 'lsb' // LSB first
+            };
+            
+            let score = 0;
+            let total = Object.keys(answers).length;
+            
+            for (let question in answers) {
+                const selected = document.querySelector(`input[name="${question}"]:checked`);
+                if (selected && selected.value === answers[question]) {
+                    score++;
+                }
+            }
+            
+            const result = document.getElementById('quiz-result');
+            const percentage = Math.round((score / total) * 100);
+            
+            if (percentage >= 80) {
+                result.innerHTML = `<div class="result-success">🎉 Xuất sắc! Bạn đạt ${score}/${total} câu đúng (${percentage}%)</div>`;
+            } else if (percentage >= 60) {
+                result.innerHTML = `<div class="result-success">✅ Tốt! Bạn đạt ${score}/${total} câu đúng (${percentage}%)</div>`;
+            } else {
+                result.innerHTML = `<div class="result-error">📚 Cần ôn tập thêm. Bạn đạt ${score}/${total} câu đúng (${percentage}%)</div>`;
+            }
+        }
+    </script>
+    <!-- Gemini Chatbot Widget -->
+    <script src="chatbot.js"></script>
+</body>
+</html>
