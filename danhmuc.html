@@ -21,17 +21,19 @@
         .container {
             max-width: 1200px;
             margin: 0 auto;
+            padding-top: 110px;
         }
 
 
         /* HEADER DANH MỤC - ĐỒNG BỘ HOME */
-        /* NAVBAR HEADER (giống home) */
+        /* NAVBAR HEADER (giữ cố định khi cuộn trang) */
         .navbar-header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             padding: 1rem 0;
-            position: sticky;
+            position: fixed;
             top: 0;
+            left: 0;
             width: 100%;
             z-index: 1000;
             box-shadow: 0 2px 20px rgba(0,0,0,0.1);
@@ -45,17 +47,12 @@
             padding: 0 2rem;
         }
         .logo {
-            font-size: 1.8rem;
+            font-size: 2rem;
             font-weight: bold;
             text-decoration: none;
             color: white;
             display: flex;
             align-items: center;
-            gap: 10px;
-        }
-        .logo::before {
-            content: '🎓';
-            font-size: 2rem;
         }
         .nav-menu {
             display: flex;
@@ -386,40 +383,28 @@
 </head>
 <body style="opacity:1;transition:opacity 1.2s cubic-bezier(.4,0,.2,1);">
 
+    <!-- Header sẽ được nhúng tự động -->
+    <div id="navbar-placeholder"></div>
     <script>
-      document.addEventListener('DOMContentLoaded', function() {
-        fetch('navbar.html')
-          .then(response => response.text())
-          .then(data => {
-            document.getElementById('navbar-placeholder').innerHTML = data;
-            // Hiệu ứng chuyển cảnh fade khi click link
-            document.querySelectorAll('.nav-menu a').forEach(link => {
-              link.addEventListener('click', function(e) {
-                const href = this.getAttribute('href');
-                if (href && !href.startsWith('#')) {
-                  e.preventDefault();
-                  document.body.style.transition = 'opacity 0.5s cubic-bezier(.4,0,.2,1)';
-                  document.body.style.opacity = 0;
-                  setTimeout(() => { window.location.href = href; }, 400);
-                }
-              });
+    document.addEventListener('DOMContentLoaded', function() {
+      fetch('navbar.html')
+        .then(response => response.text())
+        .then(data => {
+          document.getElementById('navbar-placeholder').innerHTML = data;
+          document.querySelectorAll('.nav-menu a').forEach(link => {
+            link.addEventListener('click', function(e) {
+              const href = this.getAttribute('href');
+              if (href && !href.startsWith('#')) {
+                e.preventDefault();
+                document.body.style.transition = 'opacity 0.5s cubic-bezier(.4,0,.2,1)';
+                document.body.style.opacity = 0;
+                setTimeout(() => { window.location.href = href; }, 400);
+              }
             });
           });
-      });
+        });
+    });
     </script>
-    <header class="header">
-        <div class="nav-container">
-            <a href="home.html" class="logo">🎓 LHU Learning</a>
-            <nav>
-                <ul class="nav-menu">
-                    <li><a href="home.html"><i class="fas fa-home"></i> Trang chủ</a></li>
-                    <li><a href="danhmuc.html" class="active"><i class="fas fa-flask"></i> Danh mục</a></li>
-                    <li><a href="tainguyen_page.html"><i class="fas fa-book"></i> Tài nguyên</a></li>
-                    <li><a href="about_us_page.html"><i class="fas fa-info-circle"></i> Về chúng tôi</a></li>
-                </ul>
-            </nav>
-        </div>
-    </header>
     <div class="container" style="padding-top:110px">
         <div class="danhmuc-header">
             <h1>🎯 Danh Mục Mô Phỏng</h1>
@@ -585,6 +570,7 @@
             });
         });
     </script>
-  <script src="chatbot.js"></script>
+    <script src="https://cdn.botpress.cloud/webchat/v3.2/inject.js" defer></script>
+    <script src="https://files.bpcontent.cloud/2025/07/18/06/20250718063825-OV9W5M1I.js" defer></script>
 </body>
 </html>

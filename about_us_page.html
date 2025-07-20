@@ -10,44 +10,17 @@
             padding: 0;
             box-sizing: border-box;
         }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            line-height: 1.6;
-        }
-
-
-        /* Header & Navigation (đồng bộ home.html) */
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 1rem 0;
-            position: fixed;
-            width: 100%;
-            top: 0;
-            z-index: 1000;
-            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
-        }
-
-        .nav-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 2rem;
-        }
+        /* Additional styles can be added here */
+        
+        
 
         .logo {
-            font-size: 1.8rem;
+            font-size: 2rem;
             font-weight: bold;
             text-decoration: none;
             color: white;
             display: flex;
             align-items: center;
-            gap: 10px;
         }
 
         .logo::before {
@@ -447,43 +420,32 @@
         }
     </style>
 </head>
-<body style="opacity:1;transition:opacity 1.2s cubic-bezier(.4,0,.2,1);">
+<body style="opacity:1;transition:opacity 1.2s cubic-bezier(.4,0,.2,1);background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;">
     <!-- Header sẽ được nhúng tự động -->
     <div id="navbar-placeholder"></div>
     <script>
-      document.addEventListener('DOMContentLoaded', function() {
-        fetch('navbar.html')
-          .then(response => response.text())
-          .then(data => {
-            document.getElementById('navbar-placeholder').innerHTML = data;
-            // Hiệu ứng chuyển cảnh fade khi click link
-            document.querySelectorAll('.nav-menu a').forEach(link => {
-              link.addEventListener('click', function(e) {
-                const href = this.getAttribute('href');
-                if (href && !href.startsWith('#')) {
-                  e.preventDefault();
-                  document.body.style.transition = 'opacity 0.5s cubic-bezier(.4,0,.2,1)';
-                  document.body.style.opacity = 0;
-                  setTimeout(() => { window.location.href = href; }, 400);
-                }
-              });
-            });
-          });
+document.addEventListener('DOMContentLoaded', function() {
+  fetch('navbar.html')
+    .then(response => response.text())
+    .then(data => {
+      document.getElementById('navbar-placeholder').innerHTML = data;
+      // Hiệu ứng chuyển cảnh fade khi click link
+      document.querySelectorAll('.nav-menu a').forEach(link => {
+        link.addEventListener('click', function(e) {
+          const href = this.getAttribute('href');
+          if (href && !href.startsWith('#')) {
+            e.preventDefault();
+            document.body.style.transition = 'opacity 0.5s cubic-bezier(.4,0,.2,1)';
+            document.body.style.opacity = 0;
+            setTimeout(() => { window.location.href = href; }, 400);
+          }
+        });
       });
+    });
+});
     </script>
-    <header class="header">
-    <div class="nav-container">
-        <a href="home.html" class="logo">🎓 LHU Learning</a>
-        <nav>
-            <ul class="nav-menu">
-                <li><a href="home.html"><i class="fas fa-home"></i> Trang chủ</a></li>
-                <li><a href="danhmuc.html"><i class="fas fa-flask"></i> Danh mục</a></li>
-                <li><a href="tainguyen_page.html"><i class="fas fa-book"></i> Tài nguyên</a></li>
-                <li><a href="about_us_page.html" class="active"><i class="fas fa-info-circle"></i> Về chúng tôi</a></li>
-            </ul>
-        </nav>
-    </div>
-</header>
+    <script src="https://cdn.botpress.cloud/webchat/v3.2/inject.js" defer></script>
+    <script src="https://files.bpcontent.cloud/2025/07/18/06/20250718063825-OV9W5M1I.js" defer></script>
     <div class="container">
         <!-- Hero Section -->
         <div class="hero-section">
@@ -653,6 +615,5 @@
             </div>
         </div>
     </div>
-  <script src="chatbot.js"></script>
 </body>
 </html>
