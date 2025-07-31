@@ -661,19 +661,19 @@ document.addEventListener('DOMContentLoaded', function() {
     <section class="stats-section">
         <div class="stats-container">
             <div class="stat-card interactive-element">
-                <div class="stat-number" data-target="1250">0</div>
+                <div class="stat-number" data-target="1250">600</div>
                 <div class="stat-label">Sinh viên tham gia</div>
             </div>
             <div class="stat-card interactive-element">
-                <div class="stat-number" data-target="45">0</div>
+                <div class="stat-number" data-target="45">300</div>
                 <div class="stat-label">Mô-đun mô phỏng</div>
             </div>
             <div class="stat-card interactive-element">
-                <div class="stat-number" data-target="12">0</div>
+                <div class="stat-number" data-target="12">25</div>
                 <div class="stat-label">Khóa học hoàn chỉnh</div>
             </div>
             <div class="stat-card interactive-element">
-                <div class="stat-number" data-target="98">0</div>
+                <div class="stat-number" data-target="98">98</div>
                 <div class="stat-label">% Hài lòng</div>
             </div>
         </div>
@@ -704,14 +704,32 @@ document.addEventListener('DOMContentLoaded', function() {
                     <span>🔧</span>
                 </div>
                 <div class="simulation-content">
-                    <h3 class="simulation-title">Mạch điện tử cơ bản</h3>
-                    <p class="simulation-description">Thực hành với resistor, capacitor, LED và các linh kiện cơ bản trong môi trường ảo an toàn</p>
+                    <h3 class="simulation-title">FrondEnd</h3>
+                    <p class="simulation-description">Thấy được luồng hoạt động của FrontEnd trong Website</p>
                     <div class="simulation-features">
-                        <span class="feature-tag">Multimeter</span>
-                        <span class="feature-tag">Oscilloscope</span>
-                        <span class="feature-tag">Circuit Builder</span>
+                        <span class="feature-tag">Trực quan</span>
+                        <span class="feature-tag">Dễ tiếp cận</span>
+                        <span class="feature-tag">sinh động</span>
                     </div>
-                    <button class="try-button" onclick="showToast('Đang khởi tạo phòng lab ảo...')">Thử ngay</button>
+                     <a class="try-button" href="CNTT and dien tu/FrondEnd.html">Thử ngay</a>
+                </div>
+            </div>
+
+
+            
+            <div class="simulation-card interactive-element">
+                <div class="simulation-preview">
+                    <span>🔧</span>
+                </div>
+                <div class="simulation-content">
+                    <h3 class="simulation-title">Vật lý lớp 9</h3>
+                    <p class="simulation-description">Thực hành với áp suất nước, hiểu được áp suất nước hoạt động như thế nào</p>
+                    <div class="simulation-features">
+                        <span class="feature-tag">Trực quan</span>
+                        <span class="feature-tag">Sinh động</span>
+                        <span class="feature-tag">Ảo hóa</span>
+                    </div>
+                     <a class="try-button" href="Lop8,9/aplucnuoc_9.html">Thử ngay</a>
                 </div>
             </div>
 
@@ -720,14 +738,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     <span>🤖</span>
                 </div>
                 <div class="simulation-content">
-                    <h3 class="simulation-title">Arduino Programming Lab</h3>
-                    <p class="simulation-description">Lập trình Arduino trong môi trường mô phỏng với sensors, actuators và serial monitor</p>
+                    <h3 class="simulation-title">Giao thức UART</h3>
+                    <p class="simulation-description">Hiểu được cách thức hoạt động của giao thức UART</p>
                     <div class="simulation-features">
-                        <span class="feature-tag">Code Editor</span>
-                        <span class="feature-tag">Serial Monitor</span>
-                        <span class="feature-tag">Component Library</span>
+                        <span class="feature-tag">Trực quan</span>
+                        <span class="feature-tag">Sinh động</span>
+                        <span class="feature-tag">Tương tác</span>
                     </div>
-                    <button class="try-button" onclick="showToast('Đang tải Arduino IDE...')">Thử ngay</button>
+                     <a class="try-button" href="CNTT and dien tu/uart_simulation.html">Thử ngay</a>
                 </div>
             </div>
 
@@ -736,14 +754,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     <span>📊</span>
                 </div>
                 <div class="simulation-content">
-                    <h3 class="simulation-title">Signal Processing</h3>
-                    <p class="simulation-description">Xử lý tín hiệu số với FFT, filters và spectrum analyzer trong thời gian thực</p>
+                    <h3 class="simulation-title">WIFFI_BLUETOOTH</h3>
+                    <p class="simulation-description">Xử lý tín hiệu WiFi và Bluetooth</p>
                     <div class="simulation-features">
-                        <span class="feature-tag">FFT Analysis</span>
-                        <span class="feature-tag">Filter Design</span>
-                        <span class="feature-tag">Spectrum View</span>
+                        <span class="feature-tag">Phân tích</span>
+                        <span class="feature-tag">Tương tác</span>
+                        <span class="feature-tag">Sinh động</span>
                     </div>
-                    <button class="try-button" onclick="showToast('Đang tải công cụ xử lý tín hiệu...')">Thử ngay</button>
+                    <a class="try-button" href="CNTT and dien tu/wifi_bluetooth_education.html">Thử ngay</a>
                 </div>
             </div>
         </div>
@@ -852,7 +870,10 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
     </footer>
     <script src="chatbot.js"></script>
-    <script src="https://cdn.botpress.cloud/webchat/v3.2/inject.js" defer></script>
     <script src="https://files.bpcontent.cloud/2025/07/18/06/20250718063825-OV9W5M1I.js" defer></script>
+    <!-- Nhúng chatbot widget -->
+    <link rel="stylesheet" href="chatbot_widget.css">
+    <div id="chatbot-widget-root"></div>
+    <script src="chatbot_widget.js"></script>
 </body>
 </html>

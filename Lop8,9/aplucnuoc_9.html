@@ -1,0 +1,1584 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mô phỏng Bình thông nhau - Áp suất chất lỏng</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
+            min-height: 100vh;
+        }
+        
+        .vessel {
+            position: relative;
+            border: 3px solid #0288d1;
+            background-color: rgba(179, 229, 252, 0.2);
+            border-radius: 0 0 8px 8px;
+            transition: all 0.5s ease;
+        }
+        
+        .water {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(180deg, #29b6f6 0%, #0288d1 100%);
+            border-radius: 0 0 5px 5px;
+            transition: height 0.8s ease-in-out;
+        }
+        
+        .connector {
+            position: absolute;
+            background-color: #0288d1;
+            height: 15px;
+            bottom: 0;
+            z-index: 10;
+        }
+        
+        .molecule {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background-color: #ffffff;
+            border-radius: 50%;
+            opacity: 0.7;
+            z-index: 20;
+        }
+        
+        .flow-indicator {
+            position: absolute;
+            bottom: 7px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-top: 15px solid #ffffff;
+            opacity: 0;
+            z-index: 25;
+            transition: opacity 0.3s ease;
+        }
+        
+        .pressure-indicator {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+            z-index: 30;
+            transition: all 0.5s ease;
+        }
+        
+        .arrow {
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            transition: all 0.5s ease;
+            z-index: 15;
+        }
+        
+        .arrow-down {
+            border-top: 12px solid #f44336;
+        }
+        
+        .arrow-up {
+            border-bottom: 12px solid #4caf50;
+        }
+        
+        .formula-box {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 15px;
+            margin-top: 20px;
+        }
+        
+        .button-3d {
+            background: linear-gradient(145deg, #03a9f4, #0288d1);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1), 0 1px 3px rgba(0,0,0,0.1);
+            transition: all 0.2s ease;
+            transform: translateY(0);
+        }
+        
+        .button-3d:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 10px rgba(0,0,0,0.1), 0 3px 6px rgba(0,0,0,0.1);
+        }
+        
+        .button-3d:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 3px rgba(0,0,0,0.1);
+        }
+        
+        .slider-container {
+            position: relative;
+            padding: 10px 0;
+        }
+        
+        .slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 10px;
+            border-radius: 5px;
+            background: #d3d3d3;
+            outline: none;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: #0288d1;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        .slider::-moz-range-thumb {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: #0288d1;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        .badge {
+            background-color: #ff9800;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            display: inline-block;
+            margin-right: 5px;
+        }
+        
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+        }
+        
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 10px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        .floating {
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        .water-drop {
+            position: absolute;
+            width: 10px;
+            height: 15px;
+            background-color: #29b6f6;
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            z-index: 40;
+            animation: drop 1s linear forwards;
+        }
+        
+        @keyframes drop {
+            0% { transform: translateY(0); opacity: 1; }
+            80% { opacity: 1; }
+            100% { transform: translateY(300px); opacity: 0; }
+        }
+        
+        .drain-hole {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background-color: #424242;
+            border-radius: 50%;
+            bottom: -7px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 15;
+            cursor: pointer;
+        }
+        
+        .drain-hole::after {
+            content: "";
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 9px;
+            height: 9px;
+            background-color: #212121;
+            border-radius: 50%;
+        }
+        
+        .drain-hole.open::after {
+            background-color: #0288d1;
+        }
+        
+        .tab {
+            cursor: pointer;
+            padding: 10px 20px;
+            border-radius: 8px 8px 0 0;
+            background-color: #e1f5fe;
+            border: 1px solid #b3e5fc;
+            border-bottom: none;
+            font-weight: bold;
+            color: #0288d1;
+            transition: all 0.3s ease;
+        }
+        
+        .tab.active {
+            background-color: white;
+            color: #0288d1;
+            border-bottom: 1px solid white;
+            margin-bottom: -1px;
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 20px;
+            border: 1px solid #b3e5fc;
+            border-radius: 0 8px 8px 8px;
+            background-color: white;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .quiz-option {
+            padding: 10px 15px;
+            margin: 5px 0;
+            border: 2px solid #b3e5fc;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .quiz-option:hover {
+            background-color: #e1f5fe;
+        }
+        
+        .quiz-option.selected {
+            border-color: #0288d1;
+            background-color: #e1f5fe;
+        }
+        
+        .quiz-option.correct {
+            border-color: #4caf50;
+            background-color: rgba(76, 175, 80, 0.2);
+        }
+        
+        .quiz-option.incorrect {
+            border-color: #f44336;
+            background-color: rgba(244, 67, 54, 0.2);
+        }
+        
+        .answer-status {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-weight: bold;
+        }
+        
+        .explanation {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 8px;
+            background-color: #f5f5f5;
+            display: none;
+        }
+        
+        .explanation.show {
+            display: block;
+        }
+        
+        .score-badge {
+            background-color: #4caf50;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+        
+        .draining-animation {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 25;
+        }
+        
+        @keyframes drain {
+            0% { opacity: 0; transform: translateY(0); }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { opacity: 0; transform: translateY(100px); }
+        }
+        
+        .drain-particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background-color: #29b6f6;
+            border-radius: 50%;
+            animation: drain 1s linear forwards;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mx-auto px-4 py-8">
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+            <div class="flex flex-col md:flex-row items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-blue-700 mb-2">Mô phỏng Bình thông nhau</h1>
+                    <div class="flex flex-wrap gap-2 mb-3">
+                        <span class="badge">Vật lý lớp 8-9</span>
+                        <span class="badge bg-green-500">Áp suất chất lỏng</span>
+                    </div>
+                    <p class="text-gray-600">Khám phá nguyên lý cân bằng áp suất trong các bình thông nhau</p>
+                </div>
+                <div class="mt-4 md:mt-0">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTAgMjUwIiBmaWxsPSJub25lIiBzdHJva2U9IiMwMjg4ZDEiIHN0cm9rZS13aWR0aD0iMyI+PHBhdGggZD0iTTUwLDUwIHY4MCBoNDAgdjQwIGg3MCB2LTQwIGg0MCB2LTgwIHoiIGZpbGw9IiNiM2U1ZmMiIG9wYWNpdHk9IjAuNSIvPjxwYXRoIGQ9Ik01MCwxMzAgaDQwIiBzdHJva2Utd2lkdGg9IjQiLz48cGF0aCBkPSJNMTYwLDEzMCBoNDAiIHN0cm9rZS13aWR0aD0iNCIvPjxwYXRoIGQ9Ik05MCwxMzAgdjQwIiBzdHJva2Utd2lkdGg9IjQiLz48cGF0aCBkPSJNMTYwLDEzMCB2NDAiIHN0cm9rZS13aWR0aD0iNCIvPjxwYXRoIGQ9Ik05MCwxNzAgaDcwIiBzdHJva2Utd2lkdGg9IjQiLz48cGF0aCBkPSJNNTAsOTAgaDQwIiBzdHJva2UtZGFzaGFycmF5PSI1LDUiLz48cGF0aCBkPSJNMTYwLDkwIGg0MCIgc3Ryb2tlLWRhc2hhcnJheT0iNSw1Ii8+PHRleHQgeD0iNzAiIHk9IjExMCIgZmlsbD0iIzAyODhkMSIgc3Ryb2tlPSJub25lIiBmb250LXNpemU9IjE0IiBmb250LXdlaWdodD0iYm9sZCI+SDE8L3RleHQ+PHRleHQgeD0iMTgwIiB5PSIxMTAiIGZpbGw9IiMwMjg4ZDEiIHN0cm9rZT0ibm9uZSIgZm9udC1zaXplPSIxNCIgZm9udC13ZWlnaHQ9ImJvbGQiPkgyPC90ZXh0Pjwvc3ZnPg==" alt="Bình thông nhau" class="w-32 h-32 floating">
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="col-span-1 bg-white rounded-xl shadow-lg p-6">
+                <h2 class="text-xl font-bold text-blue-700 mb-4">Điều chỉnh thí nghiệm</h2>
+                
+                <div class="mb-6">
+                    <label class="block text-gray-700 font-medium mb-2">Chọn chất lỏng:</label>
+                    <div class="flex flex-wrap gap-2">
+                        <button id="water-btn" class="button-3d bg-blue-500 active">Nước</button>
+                        <button id="oil-btn" class="button-3d bg-yellow-500">Dầu</button>
+                        <button id="mercury-btn" class="button-3d bg-gray-500">Thủy ngân</button>
+                    </div>
+                </div>
+                
+                <div class="mb-6">
+                    <label class="block text-gray-700 font-medium mb-2">Kích thước bình 1:</label>
+                    <div class="slider-container">
+                        <input type="range" min="30" max="100" value="50" class="slider" id="vessel1-width">
+                        <div class="flex justify-between mt-1">
+                            <span class="text-sm text-gray-500">Hẹp</span>
+                            <span class="text-sm text-gray-500">Rộng</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-6">
+                    <label class="block text-gray-700 font-medium mb-2">Kích thước bình 2:</label>
+                    <div class="slider-container">
+                        <input type="range" min="30" max="100" value="50" class="slider" id="vessel2-width">
+                        <div class="flex justify-between mt-1">
+                            <span class="text-sm text-gray-500">Hẹp</span>
+                            <span class="text-sm text-gray-500">Rộng</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-6">
+                    <label class="block text-gray-700 font-medium mb-2">Lượng chất lỏng:</label>
+                    <div class="slider-container">
+                        <input type="range" min="10" max="80" value="50" class="slider" id="liquid-amount">
+                        <div class="flex justify-between mt-1">
+                            <span class="text-sm text-gray-500">Ít</span>
+                            <span class="text-sm text-gray-500">Nhiều</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-6">
+                    <label class="block text-gray-700 font-medium mb-2">Xả bớt nước:</label>
+                    <div class="slider-container">
+                        <input type="range" min="10" max="90" value="30" class="slider" id="drain-amount">
+                        <div class="flex justify-between mt-1">
+                            <span class="text-sm text-gray-500">10%</span>
+                            <span class="text-sm text-gray-500">90%</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-8">
+                    <button id="add-liquid-btn" class="button-3d w-full mb-3">Thêm chất lỏng vào bình 1</button>
+                    <button id="drain-btn" class="button-3d w-full mb-3 bg-yellow-500">Xả bớt nước</button>
+                    <button id="reset-btn" class="button-3d w-full bg-red-500">Làm lại thí nghiệm</button>
+                </div>
+            </div>
+            
+            <div class="col-span-1 md:col-span-2 bg-white rounded-xl shadow-lg p-6">
+                <h2 class="text-xl font-bold text-blue-700 mb-4">Mô phỏng bình thông nhau</h2>
+                
+                <div id="simulation-container" class="relative h-[400px] border-b-4 border-gray-800 mb-6">
+                    <div id="vessel1" class="vessel absolute bottom-0 left-[20%] transform -translate-x-1/2" style="width: 100px; height: 300px;">
+                        <div id="water1" class="water" style="height: 0%;"></div>
+                        <div class="absolute -top-8 left-1/2 transform -translate-x-1/2 text-center">
+                            <span class="font-bold text-blue-700">Bình 1</span>
+                        </div>
+                        <div id="pressure1" class="pressure-indicator" style="bottom: 50px; left: 50%; transform: translateX(-50%); background-color: rgba(244, 67, 54, 0.2);">
+                            P1
+                        </div>
+                        <div id="drain-hole1" class="drain-hole"></div>
+                        <div id="draining-animation1" class="draining-animation"></div>
+                    </div>
+                    
+                    <div id="vessel2" class="vessel absolute bottom-0 right-[20%] transform translate-x-1/2" style="width: 100px; height: 300px;">
+                        <div id="water2" class="water" style="height: 0%;"></div>
+                        <div class="absolute -top-8 left-1/2 transform -translate-x-1/2 text-center">
+                            <span class="font-bold text-blue-700">Bình 2</span>
+                        </div>
+                        <div id="pressure2" class="pressure-indicator" style="bottom: 50px; left: 50%; transform: translateX(-50%); background-color: rgba(76, 175, 80, 0.2);">
+                            P2
+                        </div>
+                        <div id="drain-hole2" class="drain-hole"></div>
+                        <div id="draining-animation2" class="draining-animation"></div>
+                    </div>
+                    
+                    <div id="connector" class="connector" style="left: 20%; right: 20%; bottom: 0;"></div>
+                    <div id="flow-indicator" class="flow-indicator"></div>
+                    
+                    <div id="height-indicator1" class="absolute left-[15%] bottom-0 h-[300px] border-l-2 border-dashed border-gray-400">
+                        <div class="absolute -left-8 top-1/2 transform -translate-y-1/2 text-sm font-bold text-blue-700">
+                            h<sub>1</sub>
+                        </div>
+                    </div>
+                    
+                    <div id="height-indicator2" class="absolute right-[15%] bottom-0 h-[300px] border-l-2 border-dashed border-gray-400">
+                        <div class="absolute -left-8 top-1/2 transform -translate-y-1/2 text-sm font-bold text-blue-700">
+                            h<sub>2</sub>
+                        </div>
+                    </div>
+                    
+                    <div id="molecules-container"></div>
+                    <div id="arrows-container"></div>
+                    <div id="drops-container"></div>
+                </div>
+                
+                <div class="formula-box">
+                    <h3 class="text-lg font-bold text-blue-700 mb-2">Nguyên lý bình thông nhau</h3>
+                    <p class="mb-3">Trong các bình thông nhau chứa cùng một loại chất lỏng, mực chất lỏng ở các nhánh luôn ngang bằng nhau, bất kể hình dạng của các nhánh.</p>
+                    
+                    <div class="flex items-center justify-center my-4">
+                        <div class="bg-blue-100 p-3 rounded-lg text-center">
+                            <span class="text-xl font-bold text-blue-700">h<sub>1</sub> = h<sub>2</sub></span>
+                            <div class="tooltip mt-2">
+                                <span class="text-sm text-blue-500 underline">Tại sao?</span>
+                                <span class="tooltiptext">Vì áp suất tại cùng một độ sâu trong chất lỏng là như nhau: P<sub>1</sub> = P<sub>2</sub> = ρgh</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="observation" class="mt-4 p-3 bg-yellow-50 rounded-lg">
+                        <h4 class="font-bold text-yellow-700">Quan sát:</h4>
+                        <p id="observation-text">Hãy thêm chất lỏng vào bình để bắt đầu thí nghiệm.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-xl shadow-lg p-6 mt-6">
+            <div class="flex mb-4 border-b">
+                <div id="tab-theory" class="tab active">Lý thuyết</div>
+                <div id="tab-exercises" class="tab">Bài tập</div>
+                <div id="tab-applications" class="tab">Ứng dụng thực tế</div>
+            </div>
+            
+            <div id="content-theory" class="tab-content active">
+                <h2 class="text-xl font-bold text-blue-700 mb-4">Lý thuyết về bình thông nhau</h2>
+                
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold text-blue-600 mb-2">1. Định nghĩa</h3>
+                    <p class="mb-2">Bình thông nhau là hệ thống gồm hai hay nhiều bình chứa cùng một loại chất lỏng và được nối với nhau ở phần dưới, cho phép chất lỏng di chuyển tự do giữa các bình.</p>
+                </div>
+                
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold text-blue-600 mb-2">2. Nguyên lý bình thông nhau</h3>
+                    <div class="bg-blue-50 p-4 rounded-lg mb-3">
+                        <p class="font-bold">Trong các bình thông nhau chứa cùng một loại chất lỏng đứng yên, mực chất lỏng ở các nhánh luôn ngang bằng nhau, không phụ thuộc vào hình dạng của các nhánh.</p>
+                    </div>
+                    <p>Điều này có nghĩa là dù các bình có kích thước và hình dạng khác nhau, mực chất lỏng vẫn sẽ cân bằng ở cùng một độ cao.</p>
+                </div>
+                
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold text-blue-600 mb-2">3. Cơ sở vật lý</h3>
+                    <p class="mb-2">Nguyên lý bình thông nhau dựa trên quy luật cân bằng áp suất thủy tĩnh:</p>
+                    <ul class="list-disc pl-6 mb-3">
+                        <li>Áp suất tại một điểm trong chất lỏng phụ thuộc vào độ sâu của điểm đó: P = P<sub>0</sub> + ρgh</li>
+                        <li>Trong đó: P<sub>0</sub> là áp suất khí quyển, ρ là khối lượng riêng của chất lỏng, g là gia tốc trọng trường, h là độ sâu</li>
+                        <li>Tại mặt thoáng của chất lỏng trong các bình, áp suất bằng áp suất khí quyển P<sub>0</sub></li>
+                        <li>Tại điểm nối giữa các bình (cùng độ cao), áp suất phải bằng nhau</li>
+                    </ul>
+                    <p>Do đó, để áp suất tại điểm nối bằng nhau, độ cao của cột chất lỏng trong các bình phải bằng nhau.</p>
+                </div>
+                
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold text-blue-600 mb-2">4. Công thức toán học</h3>
+                    <div class="bg-gray-100 p-4 rounded-lg mb-3 text-center">
+                        <p class="font-bold text-lg">h<sub>1</sub> = h<sub>2</sub> = h<sub>3</sub> = ... = h<sub>n</sub></p>
+                        <p class="mt-2">Trong đó h<sub>i</sub> là chiều cao cột chất lỏng trong bình thứ i, tính từ mặt thoáng đến điểm nối.</p>
+                    </div>
+                </div>
+                
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold text-blue-600 mb-2">5. Trường hợp đặc biệt</h3>
+                    <p class="mb-2">Khi các bình chứa các chất lỏng khác nhau không trộn lẫn với nhau:</p>
+                    <div class="bg-blue-50 p-4 rounded-lg mb-3">
+                        <p class="font-bold">ρ<sub>1</sub>h<sub>1</sub> = ρ<sub>2</sub>h<sub>2</sub> = ρ<sub>3</sub>h<sub>3</sub> = ... = ρ<sub>n</sub>h<sub>n</sub></p>
+                        <p class="mt-2">Trong đó ρ<sub>i</sub> là khối lượng riêng của chất lỏng trong bình thứ i.</p>
+                    </div>
+                    <p>Điều này có nghĩa là chất lỏng có khối lượng riêng lớn hơn sẽ có cột chất lỏng thấp hơn.</p>
+                </div>
+            </div>
+            
+            <div id="content-exercises" class="tab-content">
+                <h2 class="text-xl font-bold text-blue-700 mb-4">Bài tập về bình thông nhau</h2>
+                
+                <div class="mb-8">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold text-blue-600">Câu hỏi trắc nghiệm</h3>
+                        <div id="quiz-score" class="score-badge">Điểm: 0/5</div>
+                    </div>
+                    
+                    <div class="bg-blue-50 p-4 rounded-lg mb-6">
+                        <div class="quiz-question mb-4">
+                            <p class="font-bold mb-2">1. Nguyên lý bình thông nhau phát biểu rằng:</p>
+                            <div class="quiz-options" data-correct="b">
+                                <div class="quiz-option" data-option="a" data-explanation="Sai. Áp suất trong chất lỏng thay đổi theo độ sâu, không phải bằng nhau ở mọi độ sâu.">
+                                    Áp suất trong các bình thông nhau luôn bằng nhau ở mọi độ sâu.
+                                    <span class="answer-status text-red-500 hidden">✗ Sai</span>
+                                </div>
+                                <div class="quiz-option" data-option="b" data-explanation="Đúng. Đây chính là phát biểu chính xác của nguyên lý bình thông nhau. Mực chất lỏng luôn ngang bằng nhau do áp suất thủy tĩnh tại cùng một độ sâu là như nhau.">
+                                    Mực chất lỏng trong các bình thông nhau luôn ngang bằng nhau, không phụ thuộc vào hình dạng của bình.
+                                    <span class="answer-status text-green-500 hidden">✓ Đúng</span>
+                                </div>
+                                <div class="quiz-option" data-option="c" data-explanation="Sai. Thể tích chất lỏng trong các bình thông nhau phụ thuộc vào hình dạng và kích thước của từng bình, không nhất thiết phải bằng nhau.">
+                                    Thể tích chất lỏng trong các bình thông nhau luôn bằng nhau.
+                                    <span class="answer-status text-red-500 hidden">✗ Sai</span>
+                                </div>
+                                <div class="quiz-option" data-option="d" data-explanation="Sai. Áp suất tại đáy các bình thông nhau phụ thuộc vào chiều cao cột chất lỏng và diện tích đáy, không nhất thiết bằng nhau nếu các bình có hình dạng khác nhau.">
+                                    Áp suất tại đáy các bình thông nhau luôn bằng nhau, bất kể hình dạng của bình.
+                                    <span class="answer-status text-red-500 hidden">✗ Sai</span>
+                                </div>
+                            </div>
+                            <div class="explanation mt-3 p-3 rounded-lg bg-blue-50 hidden">
+                                <p class="font-semibold">Giải thích:</p>
+                                <p class="explanation-text"></p>
+                            </div>
+                        </div>
+                        
+                        <div class="quiz-question mb-4">
+                            <p class="font-bold mb-2">2. Khi thay đổi kích thước của một bình trong hệ thống bình thông nhau, điều gì sẽ xảy ra?</p>
+                            <div class="quiz-options" data-correct="a">
+                                <div class="quiz-option" data-option="a" data-explanation="Đúng. Theo nguyên lý bình thông nhau, mực chất lỏng vẫn ngang bằng nhau, nhưng lượng chất lỏng trong mỗi bình sẽ thay đổi tùy thuộc vào kích thước của bình.">
+                                    Mực chất lỏng vẫn ngang bằng nhau, nhưng lượng chất lỏng trong mỗi bình sẽ thay đổi.
+                                    <span class="answer-status text-green-500 hidden">✓ Đúng</span>
+                                </div>
+                                <div class="quiz-option" data-option="b" data-explanation="Sai. Nguyên lý bình thông nhau khẳng định rằng mực chất lỏng luôn ngang bằng nhau, không phụ thuộc vào kích thước của bình.">
+                                    Mực chất lỏng sẽ cao hơn trong bình có kích thước nhỏ hơn.
+                                    <span class="answer-status text-red-500 hidden">✗ Sai</span>
+                                </div>
+                                <div class="quiz-option" data-option="c" data-explanation="Sai. Mực chất lỏng không phụ thuộc vào kích thước của bình, nên không cao hơn trong bình có kích thước lớn hơn.">
+                                    Mực chất lỏng sẽ cao hơn trong bình có kích thước lớn hơn.
+                                    <span class="answer-status text-red-500 hidden">✗ Sai</span>
+                                </div>
+                                <div class="quiz-option" data-option="d" data-explanation="Sai. Thay đổi kích thước của một bình không làm thay đổi tổng thể tích chất lỏng trong hệ thống, chỉ làm thay đổi phân bố chất lỏng giữa các bình.">
+                                    Tổng thể tích chất lỏng trong hệ thống sẽ thay đổi.
+                                    <span class="answer-status text-red-500 hidden">✗ Sai</span>
+                                </div>
+                            </div>
+                            <div class="explanation mt-3 p-3 rounded-lg bg-blue-50 hidden">
+                                <p class="font-semibold">Giải thích:</p>
+                                <p class="explanation-text"></p>
+                            </div>
+                        </div>
+                        
+                        <div class="quiz-question mb-4">
+                            <p class="font-bold mb-2">3. Khi đổ thêm dầu (không trộn lẫn với nước) vào một bình thông nhau đang chứa nước, điều gì sẽ xảy ra?</p>
+                            <div class="quiz-options" data-correct="c">
+                                <div class="quiz-option" data-option="a" data-explanation="Sai. Dầu và nước có khối lượng riêng khác nhau, nên khi không trộn lẫn, chúng sẽ tạo thành các lớp riêng biệt với mực chất lỏng khác nhau.">
+                                    Dầu và nước sẽ có cùng mực chất lỏng trong tất cả các bình.
+                                    <span class="answer-status text-red-500 hidden">✗ Sai</span>
+                                </div>
+                                <div class="quiz-option" data-option="b" data-explanation="Sai. Dầu có khối lượng riêng nhỏ hơn nước nên sẽ nổi trên mặt nước, không chìm xuống dưới.">
+                                    Dầu sẽ chìm xuống dưới nước trong tất cả các bình.
+                                    <span class="answer-status text-red-500 hidden">✗ Sai</span>
+                                </div>
+                                <div class="quiz-option" data-option="c" data-explanation="Đúng. Dầu có khối lượng riêng nhỏ hơn nước nên sẽ nổi trên mặt nước. Theo công thức ρ₁h₁ = ρ₂h₂, các chất lỏng khác nhau sẽ có độ cao khác nhau ở các bình.">
+                                    Dầu sẽ nổi trên mặt nước và có thể có độ cao khác nhau ở các bình.
+                                    <span class="answer-status text-green-500 hidden">✓ Đúng</span>
+                                </div>
+                                <div class="quiz-option" data-option="d" data-explanation="Sai. Dầu và nước là hai chất lỏng không trộn lẫn, nên chúng sẽ tạo thành các lớp riêng biệt, không tạo thành hỗn hợp đồng nhất.">
+                                    Dầu và nước sẽ trộn lẫn tạo thành hỗn hợp đồng nhất.
+                                    <span class="answer-status text-red-500 hidden">✗ Sai</span>
+                                </div>
+                            </div>
+                            <div class="explanation mt-3 p-3 rounded-lg bg-blue-50 hidden">
+                                <p class="font-semibold">Giải thích:</p>
+                                <p class="explanation-text"></p>
+                            </div>
+                        </div>
+                        
+                        <div class="quiz-question mb-4">
+                            <p class="font-bold mb-2">4. Công thức nào sau đây áp dụng cho bình thông nhau chứa các chất lỏng khác nhau không trộn lẫn?</p>
+                            <div class="quiz-options" data-correct="b">
+                                <div class="quiz-option" data-option="a" data-explanation="Sai. Công thức h₁ = h₂ chỉ áp dụng cho bình thông nhau chứa cùng một loại chất lỏng, không áp dụng cho các chất lỏng khác nhau.">
+                                    h₁ = h₂
+                                    <span class="answer-status text-red-500 hidden">✗ Sai</span>
+                                </div>
+                                <div class="quiz-option" data-option="b" data-explanation="Đúng. Đối với các chất lỏng khác nhau không trộn lẫn trong bình thông nhau, áp suất tại điểm nối phải bằng nhau, dẫn đến công thức ρ₁h₁ = ρ₂h₂, trong đó ρ là khối lượng riêng và h là chiều cao cột chất lỏng.">
+                                    ρ₁h₁ = ρ₂h₂
+                                    <span class="answer-status text-green-500 hidden">✓ Đúng</span>
+                                </div>
+                                <div class="quiz-option" data-option="c" data-explanation="Sai. Công thức ρ₁/h₁ = ρ₂/h₂ không đúng với nguyên lý bình thông nhau. Công thức đúng là ρ₁h₁ = ρ₂h₂.">
+                                    ρ₁/h₁ = ρ₂/h₂
+                                    <span class="answer-status text-red-500 hidden">✗ Sai</span>
+                                </div>
+                                <div class="quiz-option" data-option="d" data-explanation="Sai. Công thức h₁/ρ₁ = h₂/ρ₂ không đúng với nguyên lý bình thông nhau. Công thức đúng là ρ₁h₁ = ρ₂h₂.">
+                                    h₁/ρ₁ = h₂/ρ₂
+                                    <span class="answer-status text-red-500 hidden">✗ Sai</span>
+                                </div>
+                            </div>
+                            <div class="explanation mt-3 p-3 rounded-lg bg-blue-50 hidden">
+                                <p class="font-semibold">Giải thích:</p>
+                                <p class="explanation-text"></p>
+                            </div>
+                        </div>
+                        
+                        <div class="quiz-question mb-4">
+                            <p class="font-bold mb-2">5. Ống thủy chuẩn hoạt động dựa trên nguyên lý nào?</p>
+                            <div class="quiz-options" data-correct="a">
+                                <div class="quiz-option" data-option="a" data-explanation="Đúng. Ống thủy chuẩn hoạt động dựa trên nguyên lý bình thông nhau, theo đó mực chất lỏng trong các nhánh của ống luôn ngang bằng nhau khi ống được đặt nằm ngang.">
+                                    Nguyên lý bình thông nhau
+                                    <span class="answer-status text-green-500 hidden">✓ Đúng</span>
+                                </div>
+                                <div class="quiz-option" data-option="b" data-explanation="Sai. Định luật Archimedes liên quan đến lực đẩy của chất lỏng lên vật thể bị nhúng vào chất lỏng, không liên quan trực tiếp đến hoạt động của ống thủy chuẩn.">
+                                    Định luật Archimedes
+                                    <span class="answer-status text-red-500 hidden">✗ Sai</span>
+                                </div>
+                                <div class="quiz-option" data-option="c" data-explanation="Sai. Định luật Pascal liên quan đến sự truyền áp suất trong chất lỏng, không phải là nguyên lý chính của ống thủy chuẩn.">
+                                    Định luật Pascal
+                                    <span class="answer-status text-red-500 hidden">✗ Sai</span>
+                                </div>
+                                <div class="quiz-option" data-option="d" data-explanation="Sai. Định luật Bernoulli liên quan đến dòng chảy của chất lỏng và mối quan hệ giữa áp suất, vận tốc và độ cao, không phải là nguyên lý của ống thủy chuẩn.">
+                                    Định luật Bernoulli
+                                    <span class="answer-status text-red-500 hidden">✗ Sai</span>
+                                </div>
+                            </div>
+                            <div class="explanation mt-3 p-3 rounded-lg bg-blue-50 hidden">
+                                <p class="font-semibold">Giải thích:</p>
+                                <p class="explanation-text"></p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button id="check-answers-btn" class="button-3d">Kiểm tra đáp án</button>
+                </div>
+                
+                <div class="mt-10 mb-8">
+                    <h3 class="text-lg font-semibold text-blue-600 mb-4">Bài tập thực hành</h3>
+                    
+                    <div class="bg-blue-50 p-4 rounded-lg">
+                        <p class="font-bold mb-3">Thử thách: Tạo mực nước cân bằng</p>
+                        <p class="mb-4">Hãy điều chỉnh các thông số để tạo ra một hệ thống bình thông nhau với các yêu cầu sau:</p>
+                        
+                        <div id="challenge" class="mb-4">
+                            <ul class="list-disc pl-6 mb-4">
+                                <li>Bình 1 có kích thước gấp đôi bình 2</li>
+                                <li>Mực chất lỏng ở độ cao 50%</li>
+                                <li>Sử dụng chất lỏng là thủy ngân</li>
+                            </ul>
+                            
+                            <div id="challenge-result" class="hidden p-3 rounded-lg mb-3">
+                                <p id="challenge-message"></p>
+                                <p id="challenge-score" class="font-bold mt-2"></p>
+                            </div>
+                            
+                            <button id="check-challenge-btn" class="button-3d">Kiểm tra kết quả</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="content-applications" class="tab-content">
+                <h2 class="text-xl font-bold text-blue-700 mb-4">Ứng dụng thực tế của bình thông nhau</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="p-4 border rounded-lg bg-blue-50">
+                        <h3 class="font-bold text-blue-700 mb-2">1. Ống thủy chuẩn</h3>
+                        <p class="mb-3">Dùng để xác định mặt phẳng ngang trong xây dựng và kiến trúc.</p>
+                        <p>Nguyên lý: Mặt thoáng của chất lỏng trong ống thủy chuẩn luôn nằm trên cùng một mặt phẳng ngang, giúp xác định các điểm có cùng độ cao.</p>
+                    </div>
+                    
+                    <div class="p-4 border rounded-lg bg-blue-50">
+                        <h3 class="font-bold text-blue-700 mb-2">2. Hệ thống cấp nước</h3>
+                        <p class="mb-3">Đảm bảo nước được phân phối đều đến các khu vực có cùng độ cao.</p>
+                        <p>Trong hệ thống cấp nước đô thị, nước từ bể chứa cao sẽ được phân phối đến các hộ gia đình có cùng độ cao với áp suất như nhau.</p>
+                    </div>
+                    
+                    <div class="p-4 border rounded-lg bg-blue-50">
+                        <h3 class="font-bold text-blue-700 mb-2">3. Khóa nước (Xi-phông)</h3>
+                        <p class="mb-3">Ngăn mùi hôi từ cống thoát nước vào nhà.</p>
+                        <p>Nước trong xi-phông tạo thành một lớp chắn, ngăn không cho khí từ đường ống thoát nước đi ngược lên.</p>
+                    </div>
+                    
+                    <div class="p-4 border rounded-lg bg-blue-50">
+                        <h3 class="font-bold text-blue-700 mb-2">4. Đồng hồ đo mức chất lỏng</h3>
+                        <p class="mb-3">Dùng để đo mức chất lỏng trong các bể chứa lớn.</p>
+                        <p>Một ống thủy tinh được nối với bể chứa, mực chất lỏng trong ống sẽ ngang bằng với mực chất lỏng trong bể.</p>
+                    </div>
+                    
+                    <div class="p-4 border rounded-lg bg-blue-50">
+                        <h3 class="font-bold text-blue-700 mb-2">5. Hệ thống thủy lực</h3>
+                        <p class="mb-3">Truyền lực và điều khiển các thiết bị cơ khí.</p>
+                        <p>Dựa trên nguyên lý Pascal kết hợp với nguyên lý bình thông nhau để truyền và khuếch đại lực.</p>
+                    </div>
+                    
+                    <div class="p-4 border rounded-lg bg-blue-50">
+                        <h3 class="font-bold text-blue-700 mb-2">6. Hệ thống tưới tiêu</h3>
+                        <p class="mb-3">Phân phối nước đồng đều cho các khu vực canh tác.</p>
+                        <p>Các kênh dẫn nước được thiết kế dựa trên nguyên lý bình thông nhau để đảm bảo nước được phân phối đều đến các khu vực có cùng độ cao.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elements
+            const vessel1 = document.getElementById('vessel1');
+            const vessel2 = document.getElementById('vessel2');
+            const water1 = document.getElementById('water1');
+            const water2 = document.getElementById('water2');
+            const vessel1Width = document.getElementById('vessel1-width');
+            const vessel2Width = document.getElementById('vessel2-width');
+            const liquidAmount = document.getElementById('liquid-amount');
+            const drainAmount = document.getElementById('drain-amount');
+            const addLiquidBtn = document.getElementById('add-liquid-btn');
+            const drainBtn = document.getElementById('drain-btn');
+            const resetBtn = document.getElementById('reset-btn');
+            const waterBtn = document.getElementById('water-btn');
+            const oilBtn = document.getElementById('oil-btn');
+            const mercuryBtn = document.getElementById('mercury-btn');
+            const observationText = document.getElementById('observation-text');
+            const moleculesContainer = document.getElementById('molecules-container');
+            const arrowsContainer = document.getElementById('arrows-container');
+            const dropsContainer = document.getElementById('drops-container');
+            const pressure1 = document.getElementById('pressure1');
+            const pressure2 = document.getElementById('pressure2');
+            const flowIndicator = document.getElementById('flow-indicator');
+            const drainHole1 = document.getElementById('drain-hole1');
+            const drainHole2 = document.getElementById('drain-hole2');
+            const drainAnimation1 = document.getElementById('draining-animation1');
+            const drainAnimation2 = document.getElementById('draining-animation2');
+            
+            // Tab elements
+            const tabTheory = document.getElementById('tab-theory');
+            const tabExercises = document.getElementById('tab-exercises');
+            const tabApplications = document.getElementById('tab-applications');
+            const contentTheory = document.getElementById('content-theory');
+            const contentExercises = document.getElementById('content-exercises');
+            const contentApplications = document.getElementById('content-applications');
+            
+            // Quiz elements
+            const checkAnswersBtn = document.getElementById('check-answers-btn');
+            const quizScore = document.getElementById('quiz-score');
+            const checkChallengeBtn = document.getElementById('check-challenge-btn');
+            const challengeResult = document.getElementById('challenge-result');
+            const challengeMessage = document.getElementById('challenge-message');
+            const challengeScore = document.getElementById('challenge-score');
+            
+            // Variables
+            let currentLiquid = 'water';
+            let liquidColors = {
+                water: 'linear-gradient(180deg, #29b6f6 0%, #0288d1 100%)',
+                oil: 'linear-gradient(180deg, #ffd54f 0%, #ff9800 100%)',
+                mercury: 'linear-gradient(180deg, #e0e0e0 0%, #9e9e9e 100%)'
+            };
+            let liquidDensities = {
+                water: 1,
+                oil: 0.8,
+                mercury: 13.6
+            };
+            let isAnimating = false;
+            let molecules = [];
+            let arrows = [];
+            let totalLiquidVolume = 0;
+            let previousWidth1 = parseInt(vessel1Width.value);
+            let previousWidth2 = parseInt(vessel2Width.value);
+            let isDraining = false;
+            
+            // Initialize
+            updateVesselSizes();
+            
+            // Event listeners
+            vessel1Width.addEventListener('input', handleVesselResize);
+            vessel2Width.addEventListener('input', handleVesselResize);
+            liquidAmount.addEventListener('input', updateLiquidAmount);
+            drainAmount.addEventListener('input', updateDrainAmount);
+            addLiquidBtn.addEventListener('click', addLiquid);
+            drainBtn.addEventListener('click', drainLiquid);
+            resetBtn.addEventListener('click', resetSimulation);
+            waterBtn.addEventListener('click', () => changeLiquid('water'));
+            oilBtn.addEventListener('click', () => changeLiquid('oil'));
+            mercuryBtn.addEventListener('click', () => changeLiquid('mercury'));
+            drainHole1.addEventListener('click', () => toggleDrainHole(1));
+            drainHole2.addEventListener('click', () => toggleDrainHole(2));
+            
+            // Tab event listeners
+            tabTheory.addEventListener('click', () => switchTab('theory'));
+            tabExercises.addEventListener('click', () => switchTab('exercises'));
+            tabApplications.addEventListener('click', () => switchTab('applications'));
+            
+            // Quiz event listeners
+            checkAnswersBtn.addEventListener('click', checkQuizAnswers);
+            checkChallengeBtn.addEventListener('click', checkChallenge);
+            
+            // Set up quiz options
+            document.querySelectorAll('.quiz-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    // Remove selected class from siblings
+                    const parent = this.parentElement;
+                    parent.querySelectorAll('.quiz-option').forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    
+                    // Add selected class to clicked option
+                    this.classList.add('selected');
+                    
+                    // Show answer status immediately
+                    const statusElement = this.querySelector('.answer-status');
+                    const explanationElement = this.closest('.quiz-question').querySelector('.explanation');
+                    const explanationTextElement = explanationElement.querySelector('.explanation-text');
+                    const explanation = this.getAttribute('data-explanation');
+                    
+                    // Show all answer statuses in this question
+                    parent.querySelectorAll('.answer-status').forEach(status => {
+                        status.classList.remove('hidden');
+                    });
+                    
+                    // Show explanation
+                    explanationTextElement.textContent = explanation;
+                    explanationElement.classList.remove('hidden');
+                    
+                    // Update score
+                    updateQuizScore();
+                });
+            });
+            
+            // Functions
+            function handleVesselResize() {
+                const width1 = parseInt(vessel1Width.value);
+                const width2 = parseInt(vessel2Width.value);
+                
+                // Check if there's liquid in the vessels
+                const currentHeight1 = parseFloat(water1.style.height) || 0;
+                const currentHeight2 = parseFloat(water2.style.height) || 0;
+                
+                if (currentHeight1 > 0 || currentHeight2 > 0) {
+                    // Calculate current volumes
+                    const currentVolume1 = currentHeight1 * previousWidth1;
+                    const currentVolume2 = currentHeight2 * previousWidth2;
+                    totalLiquidVolume = currentVolume1 + currentVolume2;
+                    
+                    // Update vessel sizes
+                    vessel1.style.width = width1 + 'px';
+                    vessel2.style.width = width2 + 'px';
+                    
+                    // Determine flow direction for animation
+                    let flowDirection = '';
+                    if (width1 < previousWidth1) {
+                        flowDirection = 'right';
+                    } else if (width2 < previousWidth2) {
+                        flowDirection = 'left';
+                    }
+                    
+                    // Show flow indicator if there's a significant change
+                    if (Math.abs(width1 - previousWidth1) > 5 || Math.abs(width2 - previousWidth2) > 5) {
+                        showFlowIndicator(flowDirection);
+                    }
+                    
+                    // Balance liquid levels based on new vessel sizes
+                    balanceLiquidLevels();
+                    
+                    // Update previous widths
+                    previousWidth1 = width1;
+                    previousWidth2 = width2;
+                } else {
+                    // Just update vessel sizes without animation
+                    vessel1.style.width = width1 + 'px';
+                    vessel2.style.width = width2 + 'px';
+                    previousWidth1 = width1;
+                    previousWidth2 = width2;
+                }
+            }
+            
+            function updateVesselSizes() {
+                const width1 = vessel1Width.value;
+                const width2 = vessel2Width.value;
+                
+                vessel1.style.width = width1 + 'px';
+                vessel2.style.width = width2 + 'px';
+                
+                previousWidth1 = parseInt(width1);
+                previousWidth2 = parseInt(width2);
+            }
+            
+            function updateLiquidAmount() {
+                // This just updates the preview, doesn't actually change the simulation
+                const amount = liquidAmount.value;
+                addLiquidBtn.textContent = `Thêm ${amount}% chất lỏng vào bình 1`;
+            }
+            
+            function updateDrainAmount() {
+                // This just updates the preview, doesn't actually change the simulation
+                const amount = drainAmount.value;
+                drainBtn.textContent = `Xả ${amount}% nước`;
+            }
+            
+            function addLiquid() {
+                if (isAnimating) return;
+                isAnimating = true;
+                
+                // Clear previous molecules and arrows
+                clearMolecules();
+                clearArrows();
+                
+                // Add liquid to vessel 1 first
+                const amount = parseInt(liquidAmount.value);
+                water1.style.height = amount + '%';
+                water1.style.background = liquidColors[currentLiquid];
+                
+                // Calculate total volume
+                const width1 = parseInt(vessel1.style.width);
+                totalLiquidVolume = amount * width1;
+                
+                // Create flow animation with molecules
+                createMolecules();
+                
+                // Create pressure arrows
+                createPressureArrows();
+                
+                // After a delay, balance the levels
+                setTimeout(() => {
+                    balanceLiquidLevels();
+                }, 1000);
+            }
+            
+            function balanceLiquidLevels() {
+                const width1 = parseInt(vessel1.style.width);
+                const width2 = parseInt(vessel2.style.width);
+                
+                // Calculate the balanced height based on the total volume and widths
+                const balancedHeight = Math.min(95, totalLiquidVolume / (width1 + width2));
+                
+                // Animate the balancing
+                animateBalance(balancedHeight);
+                
+                // Update observation text
+                updateObservation(balancedHeight);
+            }
+            
+            function animateBalance(finalHeight) {
+                const startHeight1 = parseFloat(water1.style.height) || 0;
+                const startHeight2 = parseFloat(water2.style.height) || 0;
+                
+                let step = 0;
+                const totalSteps = 50;
+                
+                function animate() {
+                    step++;
+                    
+                    const progress = step / totalSteps;
+                    const currentHeight1 = startHeight1 + (finalHeight - startHeight1) * progress;
+                    const currentHeight2 = startHeight2 + (finalHeight - startHeight2) * progress;
+                    
+                    water1.style.height = currentHeight1 + '%';
+                    water2.style.height = currentHeight2 + '%';
+                    water2.style.background = liquidColors[currentLiquid];
+                    
+                    // Update molecules position
+                    updateMolecules(currentHeight1, currentHeight2);
+                    
+                    // Update pressure indicators
+                    updatePressureIndicators(currentHeight1, currentHeight2);
+                    
+                    if (step < totalSteps) {
+                        requestAnimationFrame(animate);
+                    } else {
+                        isAnimating = false;
+                        hideFlowIndicator();
+                    }
+                }
+                
+                animate();
+            }
+            
+            function createMolecules() {
+                // Create molecules for animation
+                const moleculeCount = 20;
+                
+                for (let i = 0; i < moleculeCount; i++) {
+                    const molecule = document.createElement('div');
+                    molecule.className = 'molecule';
+                    
+                    // Random position within vessel 1
+                    const vesselRect = vessel1.getBoundingClientRect();
+                    const containerRect = document.getElementById('simulation-container').getBoundingClientRect();
+                    
+                    const left = vesselRect.left - containerRect.left + Math.random() * vesselRect.width;
+                    const bottom = Math.random() * parseFloat(water1.style.height) / 100 * vesselRect.height;
+                    
+                    molecule.style.left = left + 'px';
+                    molecule.style.bottom = bottom + 'px';
+                    
+                    moleculesContainer.appendChild(molecule);
+                    molecules.push(molecule);
+                }
+            }
+            
+            function updateMolecules(height1, height2) {
+                const vessel1Rect = vessel1.getBoundingClientRect();
+                const vessel2Rect = vessel2.getBoundingClientRect();
+                const containerRect = document.getElementById('simulation-container').getBoundingClientRect();
+                
+                molecules.forEach((molecule, index) => {
+                    // Determine which vessel the molecule should be in
+                    // For simplicity, distribute molecules evenly between vessels
+                    const inVessel1 = index < molecules.length / 2;
+                    
+                    let left, bottom;
+                    
+                    if (inVessel1) {
+                        left = vessel1Rect.left - containerRect.left + Math.random() * vessel1Rect.width;
+                        bottom = Math.random() * height1 / 100 * vessel1Rect.height;
+                    } else {
+                        left = vessel2Rect.left - containerRect.left + Math.random() * vessel2Rect.width;
+                        bottom = Math.random() * height2 / 100 * vessel2Rect.height;
+                    }
+                    
+                    molecule.style.left = left + 'px';
+                    molecule.style.bottom = bottom + 'px';
+                });
+            }
+            
+            function clearMolecules() {
+                molecules.forEach(molecule => {
+                    if (molecule.parentNode) {
+                        molecule.parentNode.removeChild(molecule);
+                    }
+                });
+                molecules = [];
+            }
+            
+            function createPressureArrows() {
+                // Create arrows to visualize pressure
+                const arrowCount = 6;
+                const vesselHeight = vessel1.getBoundingClientRect().height;
+                
+                for (let i = 0; i < arrowCount; i++) {
+                    const arrow = document.createElement('div');
+                    arrow.className = 'arrow arrow-down';
+                    
+                    const bottom = 10 + i * (vesselHeight / arrowCount);
+                    
+                    // Arrow for vessel 1
+                    const arrow1 = arrow.cloneNode();
+                    arrow1.style.left = vessel1.getBoundingClientRect().left + 'px';
+                    arrow1.style.bottom = bottom + 'px';
+                    arrowsContainer.appendChild(arrow1);
+                    arrows.push(arrow1);
+                    
+                    // Arrow for vessel 2
+                    const arrow2 = arrow.cloneNode();
+                    arrow2.style.right = (document.body.clientWidth - vessel2.getBoundingClientRect().right) + 'px';
+                    arrow2.style.bottom = bottom + 'px';
+                    arrowsContainer.appendChild(arrow2);
+                    arrows.push(arrow2);
+                }
+            }
+            
+            function clearArrows() {
+                arrows.forEach(arrow => {
+                    if (arrow.parentNode) {
+                        arrow.parentNode.removeChild(arrow);
+                    }
+                });
+                arrows = [];
+            }
+            
+            function updatePressureIndicators(height1, height2) {
+                // Update pressure indicators based on liquid height
+                const density = liquidDensities[currentLiquid];
+                const pressure1Value = Math.round(density * height1);
+                const pressure2Value = Math.round(density * height2);
+                
+                pressure1.textContent = `${pressure1Value}`;
+                pressure2.textContent = `${pressure2Value}`;
+                
+                // Position indicators at the middle of the liquid
+                pressure1.style.bottom = (height1 / 2) + '%';
+                pressure2.style.bottom = (height2 / 2) + '%';
+            }
+            
+            function changeLiquid(liquid) {
+                currentLiquid = liquid;
+                
+                // Update button styles
+                [waterBtn, oilBtn, mercuryBtn].forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                
+                if (liquid === 'water') {
+                    waterBtn.classList.add('active');
+                } else if (liquid === 'oil') {
+                    oilBtn.classList.add('active');
+                } else {
+                    mercuryBtn.classList.add('active');
+                }
+                
+                // Update liquid color if there's already liquid
+                if (parseFloat(water1.style.height) > 0) {
+                    water1.style.background = liquidColors[liquid];
+                    water2.style.background = liquidColors[liquid];
+                    
+                    // Update observation
+                    updateObservation(parseFloat(water1.style.height));
+                }
+            }
+            
+            function resetSimulation() {
+                // Reset liquid levels
+                water1.style.height = '0%';
+                water2.style.height = '0%';
+                
+                // Reset total volume
+                totalLiquidVolume = 0;
+                
+                // Clear molecules and arrows
+                clearMolecules();
+                clearArrows();
+                
+                // Reset observation
+                observationText.textContent = 'Hãy thêm chất lỏng vào bình để bắt đầu thí nghiệm.';
+                
+                // Reset drain holes
+                drainHole1.classList.remove('open');
+                drainHole2.classList.remove('open');
+                isDraining = false;
+                
+                isAnimating = false;
+            }
+            
+            function updateObservation(height) {
+                const width1 = parseInt(vessel1.style.width);
+                const width2 = parseInt(vessel2.style.width);
+                
+                let message = '';
+                
+                if (width1 === width2) {
+                    message = `Hai bình có cùng kích thước, nên mực chất lỏng cân bằng ở cùng độ cao (h₁ = h₂ = ${Math.round(height)}%).`;
+                } else if (width1 > width2) {
+                    message = `Bình 1 rộng hơn bình 2, nhưng mực chất lỏng vẫn cân bằng ở cùng độ cao (h₁ = h₂ = ${Math.round(height)}%).`;
+                } else {
+                    message = `Bình 2 rộng hơn bình 1, nhưng mực chất lỏng vẫn cân bằng ở cùng độ cao (h₁ = h₂ = ${Math.round(height)}%).`;
+                }
+                
+                message += ` Điều này chứng minh nguyên lý bình thông nhau: mực chất lỏng luôn ngang bằng nhau, không phụ thuộc vào hình dạng của bình.`;
+                
+                if (currentLiquid === 'oil') {
+                    message += ' Dầu có khối lượng riêng nhỏ hơn nước nên áp suất tại cùng độ sâu cũng nhỏ hơn.';
+                } else if (currentLiquid === 'mercury') {
+                    message += ' Thủy ngân có khối lượng riêng lớn hơn nước nhiều lần nên áp suất tại cùng độ sâu cũng lớn hơn nhiều.';
+                }
+                
+                if (isDraining) {
+                    message += ' Khi mở van xả, chất lỏng sẽ chảy ra ngoài do áp suất thủy tĩnh.';
+                }
+                
+                observationText.textContent = message;
+            }
+            
+            function showFlowIndicator(direction) {
+                const connector = document.getElementById('connector');
+                const connectorRect = connector.getBoundingClientRect();
+                const containerRect = document.getElementById('simulation-container').getBoundingClientRect();
+                
+                flowIndicator.style.opacity = '1';
+                
+                if (direction === 'right') {
+                    flowIndicator.style.transform = 'translateX(-50%) rotate(-90deg)';
+                } else if (direction === 'left') {
+                    flowIndicator.style.transform = 'translateX(-50%) rotate(90deg)';
+                }
+            }
+            
+            function hideFlowIndicator() {
+                flowIndicator.style.opacity = '0';
+            }
+            
+            function drainLiquid() {
+                if (isAnimating || totalLiquidVolume === 0) return;
+                isAnimating = true;
+                
+                const drainPercentage = parseInt(drainAmount.value) / 100;
+                const currentHeight = parseFloat(water1.style.height);
+                const newHeight = currentHeight * (1 - drainPercentage);
+                
+                // Create draining animation
+                createDrainingAnimation();
+                
+                // Animate draining
+                let step = 0;
+                const totalSteps = 30;
+                
+                function animate() {
+                    step++;
+                    
+                    const progress = step / totalSteps;
+                    const currentDrainHeight = currentHeight - (currentHeight - newHeight) * progress;
+                    
+                    water1.style.height = currentDrainHeight + '%';
+                    water2.style.height = currentDrainHeight + '%';
+                    
+                    // Update pressure indicators
+                    updatePressureIndicators(currentDrainHeight, currentDrainHeight);
+                    
+                    if (step < totalSteps) {
+                        requestAnimationFrame(animate);
+                    } else {
+                        // Update total volume
+                        const width1 = parseInt(vessel1.style.width);
+                        const width2 = parseInt(vessel2.style.width);
+                        totalLiquidVolume = newHeight * (width1 + width2);
+                        
+                        isAnimating = false;
+                        updateObservation(newHeight);
+                    }
+                }
+                
+                animate();
+            }
+            
+            function createDrainingAnimation() {
+                // Create draining particles for both vessels
+                createDrainingParticles(drainAnimation1);
+                createDrainingParticles(drainAnimation2);
+            }
+            
+            function createDrainingParticles(container) {
+                // Clear previous particles
+                container.innerHTML = '';
+                
+                // Create particles
+                const particleCount = 20;
+                
+                for (let i = 0; i < particleCount; i++) {
+                    setTimeout(() => {
+                        const particle = document.createElement('div');
+                        particle.className = 'drain-particle';
+                        
+                        // Random position within the container
+                        const left = Math.random() * 100 + '%';
+                        const delay = Math.random() * 0.5;
+                        
+                        particle.style.left = left;
+                        particle.style.animationDelay = delay + 's';
+                        
+                        // Set color based on current liquid
+                        if (currentLiquid === 'oil') {
+                            particle.style.backgroundColor = '#ff9800';
+                        } else if (currentLiquid === 'mercury') {
+                            particle.style.backgroundColor = '#9e9e9e';
+                        }
+                        
+                        container.appendChild(particle);
+                        
+                        // Remove particle after animation completes
+                        setTimeout(() => {
+                            if (particle.parentNode) {
+                                particle.parentNode.removeChild(particle);
+                            }
+                        }, 1500);
+                    }, i * 50);
+                }
+            }
+            
+            function toggleDrainHole(holeNumber) {
+                if (isAnimating) return;
+                
+                if (holeNumber === 1) {
+                    drainHole1.classList.toggle('open');
+                } else {
+                    drainHole2.classList.toggle('open');
+                }
+                
+                isDraining = drainHole1.classList.contains('open') || drainHole2.classList.contains('open');
+                
+                if (isDraining && totalLiquidVolume > 0) {
+                    // Start slow continuous draining
+                    startContinuousDraining();
+                }
+                
+                // Update observation
+                updateObservation(parseFloat(water1.style.height));
+            }
+            
+            function startContinuousDraining() {
+                if (!isDraining || totalLiquidVolume <= 0) return;
+                
+                // Create a water drop
+                const drop = document.createElement('div');
+                drop.className = 'water-drop';
+                
+                const containerRect = document.getElementById('simulation-container').getBoundingClientRect();
+                
+                // Determine which hole is open
+                let holeRect;
+                if (drainHole1.classList.contains('open') && drainHole2.classList.contains('open')) {
+                    holeRect = Math.random() > 0.5 ? drainHole1.getBoundingClientRect() : drainHole2.getBoundingClientRect();
+                } else if (drainHole1.classList.contains('open')) {
+                    holeRect = drainHole1.getBoundingClientRect();
+                } else {
+                    holeRect = drainHole2.getBoundingClientRect();
+                }
+                
+                const left = holeRect.left - containerRect.left + holeRect.width / 2;
+                const top = holeRect.bottom - containerRect.top;
+                
+                drop.style.left = left + 'px';
+                drop.style.top = top + 'px';
+                
+                // Set color based on current liquid
+                if (currentLiquid === 'oil') {
+                    drop.style.backgroundColor = '#ff9800';
+                } else if (currentLiquid === 'mercury') {
+                    drop.style.backgroundColor = '#9e9e9e';
+                }
+                
+                dropsContainer.appendChild(drop);
+                
+                // Remove drop after animation completes
+                setTimeout(() => {
+                    if (drop.parentNode) {
+                        drop.parentNode.removeChild(drop);
+                    }
+                }, 1000);
+                
+                // Reduce total volume slightly
+                totalLiquidVolume = Math.max(0, totalLiquidVolume - 0.5);
+                
+                // Update liquid levels
+                const width1 = parseInt(vessel1.style.width);
+                const width2 = parseInt(vessel2.style.width);
+                const newHeight = totalLiquidVolume / (width1 + width2);
+                
+                water1.style.height = newHeight + '%';
+                water2.style.height = newHeight + '%';
+                
+                // Update pressure indicators
+                updatePressureIndicators(newHeight, newHeight);
+                
+                // Continue draining if there's still liquid and a hole is open
+                if (totalLiquidVolume > 0 && isDraining) {
+                    setTimeout(startContinuousDraining, 200);
+                } else if (totalLiquidVolume <= 0) {
+                    // All liquid drained
+                    water1.style.height = '0%';
+                    water2.style.height = '0%';
+                    updateObservation(0);
+                }
+            }
+            
+            // Tab functions
+            function switchTab(tabName) {
+                // Remove active class from all tabs and content
+                tabTheory.classList.remove('active');
+                tabExercises.classList.remove('active');
+                tabApplications.classList.remove('active');
+                contentTheory.classList.remove('active');
+                contentExercises.classList.remove('active');
+                contentApplications.classList.remove('active');
+                
+                // Add active class to selected tab and content
+                if (tabName === 'theory') {
+                    tabTheory.classList.add('active');
+                    contentTheory.classList.add('active');
+                } else if (tabName === 'exercises') {
+                    tabExercises.classList.add('active');
+                    contentExercises.classList.add('active');
+                } else {
+                    tabApplications.classList.add('active');
+                    contentApplications.classList.add('active');
+                }
+            }
+            
+            // Quiz functions
+            function checkQuizAnswers() {
+                // Show all answer statuses and explanations
+                document.querySelectorAll('.quiz-options').forEach(questionOptions => {
+                    const correctOption = questionOptions.dataset.correct;
+                    
+                    // Show all answer statuses
+                    questionOptions.querySelectorAll('.quiz-option').forEach(option => {
+                        const statusElement = option.querySelector('.answer-status');
+                        statusElement.classList.remove('hidden');
+                        
+                        // Add result class
+                        if (option.dataset.option === correctOption) {
+                            option.classList.add('correct');
+                        } else {
+                            option.classList.add('incorrect');
+                        }
+                    });
+                    
+                    // Show explanation for the correct answer
+                    const correctOptionElement = questionOptions.querySelector(`.quiz-option[data-option="${correctOption}"]`);
+                    const explanation = correctOptionElement.getAttribute('data-explanation');
+                    const explanationElement = questionOptions.closest('.quiz-question').querySelector('.explanation');
+                    const explanationTextElement = explanationElement.querySelector('.explanation-text');
+                    
+                    explanationTextElement.textContent = explanation;
+                    explanationElement.classList.remove('hidden');
+                });
+                
+                // Update score
+                updateQuizScore();
+                
+                // Disable options after checking
+                document.querySelectorAll('.quiz-option').forEach(option => {
+                    option.style.pointerEvents = 'none';
+                });
+                
+                // Disable check button
+                checkAnswersBtn.disabled = true;
+                checkAnswersBtn.textContent = 'Đã kiểm tra';
+            }
+            
+            function updateQuizScore() {
+                let score = 0;
+                let total = 0;
+                
+                // Check each question
+                document.querySelectorAll('.quiz-options').forEach(questionOptions => {
+                    total++;
+                    const correctOption = questionOptions.dataset.correct;
+                    let selectedOption = null;
+                    
+                    // Find selected option
+                    questionOptions.querySelectorAll('.quiz-option').forEach(option => {
+                        if (option.classList.contains('selected')) {
+                            selectedOption = option.dataset.option;
+                            
+                            // Add to score if correct
+                            if (selectedOption === correctOption) {
+                                score++;
+                            }
+                        }
+                    });
+                });
+                
+                // Update score display
+                quizScore.textContent = `Điểm: ${score}/${total}`;
+            }
+            
+            function checkChallenge() {
+                // Check if the challenge conditions are met
+                const width1 = parseInt(vessel1Width.value);
+                const width2 = parseInt(vessel2Width.value);
+                const liquidHeight = parseFloat(water1.style.height) || 0;
+                
+                let score = 0;
+                let message = '';
+                
+                // Check condition 1: Bình 1 có kích thước gấp đôi bình 2
+                const widthRatio = width1 / width2;
+                if (widthRatio >= 1.9 && widthRatio <= 2.1) {
+                    score++;
+                    message += '✓ Bình 1 có kích thước gấp đôi bình 2<br>';
+                } else {
+                    message += '✗ Bình 1 chưa có kích thước gấp đôi bình 2<br>';
+                }
+                
+                // Check condition 2: Mực chất lỏng ở độ cao 50%
+                if (liquidHeight >= 45 && liquidHeight <= 55) {
+                    score++;
+                    message += '✓ Mực chất lỏng ở độ cao khoảng 50%<br>';
+                } else {
+                    message += '✗ Mực chất lỏng chưa ở độ cao 50%<br>';
+                }
+                
+                // Check condition 3: Sử dụng chất lỏng là thủy ngân
+                if (currentLiquid === 'mercury') {
+                    score++;
+                    message += '✓ Đã sử dụng thủy ngân<br>';
+                } else {
+                    message += '✗ Chưa sử dụng thủy ngân<br>';
+                }
+                
+                // Show result
+                challengeResult.classList.remove('hidden');
+                challengeResult.classList.remove('bg-red-100', 'bg-yellow-100', 'bg-green-100');
+                
+                if (score === 3) {
+                    challengeResult.classList.add('bg-green-100');
+                    challengeMessage.innerHTML = 'Xuất sắc! Bạn đã hoàn thành tất cả các yêu cầu.';
+                } else if (score > 0) {
+                    challengeResult.classList.add('bg-yellow-100');
+                    challengeMessage.innerHTML = 'Gần đúng! Hãy kiểm tra lại các yêu cầu chưa đạt.';
+                } else {
+                    challengeResult.classList.add('bg-red-100');
+                    challengeMessage.innerHTML = 'Chưa đạt! Hãy thử lại.';
+                }
+                
+                challengeScore.innerHTML = message + `<br>Điểm: ${score}/3`;
+            }
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'967b6490d2eb5783',t:'MTc1Mzk0NzA1Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

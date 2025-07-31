@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -12,7 +13,25 @@
         }
         /* Additional styles can be added here */
         
-        
+                /* Header luôn hiển thị khi cuộn trang */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+        }
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
 
         .logo {
             font-size: 2rem;
@@ -21,12 +40,13 @@
             color: white;
             display: flex;
             align-items: center;
+            height: 48px;
         }
-
+        /* Đảm bảo không có .logo::before để tránh lặp icon mũ */
         .logo::before {
-            content: '🎓';
-            font-size: 2rem;
+            display: none !important;
         }
+        /* Đã bỏ .logo::before để tránh lặp icon mũ */
 
         .nav-menu {
             display: flex;
@@ -40,28 +60,28 @@
         }
 
         .nav-menu a {
-            color: #fff;
-            text-decoration: none;
-            transition: background 0.25s, color 0.25s, box-shadow 0.25s;
-            padding: 0.85rem 2.7rem;
-            border-radius: 32px;
-            position: relative;
-            overflow: hidden;
-            background: rgba(255,255,255,0.18);
-            font-size: 1.18rem;
-            font-weight: 500;
-            text-align: center;
-            min-width: 140px;
-            max-width: 180px;
-            box-sizing: border-box;
-            box-shadow: 0 2px 12px rgba(102,126,234,0.10);
-            border: 1.5px solid rgba(255,255,255,0.18);
-            letter-spacing: 0.01em;
-            cursor: pointer;
-            white-space: nowrap;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+             color: #fff;
+    text-decoration: none;
+    transition: background 0.25s, color 0.25s, box-shadow 0.25s;
+    padding: 0.85rem 2.7rem;
+    border-radius: 32px;
+    position: relative;
+    overflow: hidden;
+    background: rgba(255,255,255,0.18);
+    font-size: 1.18rem;
+    font-weight: 500;
+    text-align: center;
+    min-width: 140px;
+    max-width: 180px;
+    box-sizing: border-box;
+    box-shadow: 0 2px 12px rgba(102,126,234,0.10);
+    border: 1.5px solid rgba(255,255,255,0.18);
+    letter-spacing: 0.01em;
+    cursor: pointer;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    justify-content: center;
         }
 
         .nav-menu a::before {
@@ -69,10 +89,10 @@
         }
 
         .nav-menu a:hover {
-            background: #fff;
-            color: #764ba2;
-            box-shadow: 0 4px 18px rgba(118,75,162,0.13);
-            border: 1.5px solid #fff;
+        background: #fff;
+    color: #764ba2;
+    box-shadow: 0 4px 18px rgba(118,75,162,0.13);
+    border: 1.5px solid #fff;
         }
 
         @media (max-width: 768px) {
@@ -429,7 +449,6 @@ document.addEventListener('DOMContentLoaded', function() {
     .then(response => response.text())
     .then(data => {
       document.getElementById('navbar-placeholder').innerHTML = data;
-      // Hiệu ứng chuyển cảnh fade khi click link
       document.querySelectorAll('.nav-menu a').forEach(link => {
         link.addEventListener('click', function(e) {
           const href = this.getAttribute('href');
@@ -444,7 +463,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
     </script>
-    <script src="https://cdn.botpress.cloud/webchat/v3.2/inject.js" defer></script>
     <script src="https://files.bpcontent.cloud/2025/07/18/06/20250718063825-OV9W5M1I.js" defer></script>
     <div class="container">
         <!-- Hero Section -->
@@ -615,5 +633,9 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         </div>
     </div>
+    <!-- Nhúng chatbot widget -->
+    <link rel="stylesheet" href="chatbot_widget.css">
+    <div id="chatbot-widget-root"></div>
+    <script src="chatbot_widget.js"></script>
 </body>
 </html>

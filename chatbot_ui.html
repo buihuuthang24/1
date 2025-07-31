@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini Embedding Chatbot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6fb;
+            margin: 0;
+            padding: 0;
+        }
+        /* Floating chat widget styles */
+        .chatbot-floating-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #1976d2;
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            cursor: pointer;
+            z-index: 1000;
+        }
+        .chatbot-floating-container {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            width: 350px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.18);
+            padding: 0 0 10px 0;
+            display: none;
+            flex-direction: column;
+            z-index: 1001;
+        }
+        .chatbot-floating-header {
+            background: #1976d2;
+            color: #fff;
+            padding: 12px 20px;
+            border-radius: 10px 10px 0 0;
+            font-size: 1.1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .chatbot-floating-close {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+        .chat-log {
+            height: 250px;
+            overflow-y: auto;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 10px;
+            background: #fafbfc;
+            margin: 10px;
+        }
+        .chat-message {
+            margin-bottom: 10px;
+        }
+        .chat-message.user {
+            text-align: right;
+            color: #1976d2;
+        }
+        .chat-message.bot {
+            text-align: left;
+            color: #333;
+        }
+        .chat-input {
+            display: flex;
+            gap: 10px;
+            margin: 0 10px;
+        }
+        .chat-input input {
+            flex: 1;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+        .chat-input button {
+            padding: 8px 16px;
+            border: none;
+            background: #1976d2;
+            color: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .chat-input button:disabled {
+            background: #b0b0b0;
+        }
+    </style>
+</head>
+<body>
+    <button class="chatbot-floating-btn" id="open-chatbot">💬</button>
+    <div class="chatbot-floating-container" id="chatbot-container">
+        <div class="chatbot-floating-header">
+            Gemini Embedding Chatbot
+            <button class="chatbot-floating-close" id="close-chatbot">×</button>
+        </div>
+        <div class="chat-log" id="chat-log"></div>
+        <form class="chat-input" id="chat-form">
+            <input type="text" id="user-input" placeholder="Nhập tin nhắn..." autocomplete="off" required />
+            <button type="submit">Gửi</button>
+        </form>
+    </div>
+    <script>
+        const openBtn = document.getElementById('open-chatbot');
+        const closeBtn = document.getElementById('close-chatbot');
+        const chatbotContainer = document.getElementById('chatbot-container');
+        const chatLog = document.getElementById('chat-log');
+        const chatForm = document.getElementById('chat-form');
+        const userInput = document.getElementById('user-input');
+
+        openBtn.onclick = () => {
+            chatbotContainer.style.display = 'flex';
+            openBtn.style.display = 'none';
+        };
+        closeBtn.onclick = () => {
+            chatbotContainer.style.display = 'none';
+            openBtn.style.display = 'block';
+        };
+
+        function appendMessage(sender, text) {
+            const msg = document.createElement('div');
+            msg.className = 'chat-message ' + sender;
+            msg.textContent = text;
+            chatLog.appendChild(msg);
+            chatLog.scrollTop = chatLog.scrollHeight;
+        }
+
+        chatForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const text = userInput.value.trim();
+            if (!text) return;
+            appendMessage('user', text);
+            userInput.value = '';
+            appendMessage('bot', 'Đang lấy embedding...');
+            try {
+                const res = await fetch('http://localhost:5000/embedding', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text })
+                });
+                const data = await res.json();
+                chatLog.lastChild.textContent = data.embedding ?
+                    'Embedding: ' + data.embedding.slice(0, 5).map(x => x.toFixed(3)).join(', ') + ' ...' :
+                    'Lỗi: ' + (data.error || 'Không nhận được embedding');
+            } catch (err) {
+                chatLog.lastChild.textContent = 'Lỗi kết nối server!';
+            }
+        });
+    </script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini Embedding Chatbot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .chatbot-container {
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 8px 32px rgba(30,60,114,0.18);
+            width: 400px;
+            max-width: 95vw;
+            padding: 32px 24px 18px 24px;
+        }
+        .chatbot-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #764ba2;
+            margin-bottom: 18px;
+            text-align: center;
+        }
+        .chatbot-form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .chatbot-input {
+            padding: 12px;
+            border-radius: 8px;
+            border: 1.5px solid #764ba2;
+            font-size: 1rem;
+            outline: none;
+        }
+        .chatbot-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .chatbot-btn:hover {
+            background: linear-gradient(45deg, #764ba2, #667eea);
+        }
+        .embedding-output {
+            margin-top: 18px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 0.95rem;
+            color: #333;
+            word-break: break-all;
+            max-height: 180px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="chatbot-container">
+        <div class="chatbot-title">Gemini Embedding Chatbot</div>
+        <form class="chatbot-form" id="chatbotForm">
+            <input type="text" class="chatbot-input" id="userInput" placeholder="Nhập nội dung email hoặc văn bản..." required />
+            <button type="submit" class="chatbot-btn">Lấy embedding</button>
+        </form>
+        <div class="embedding-output" id="embeddingOutput"></div>
+    </div>
+    <script>
+    document.getElementById('chatbotForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const userInput = document.getElementById('userInput').value;
+        const outputDiv = document.getElementById('embeddingOutput');
+        outputDiv.textContent = 'Đang lấy embedding...';
+        try {
+            const res = await fetch('/embedding', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: userInput })
+            });
+            if (!res.ok) throw new Error('Lỗi server!');
+            const data = await res.json();
+            outputDiv.textContent = data.embedding ? data.embedding.join(', ') : 'Không có embedding.';
+        } catch (err) {
+            outputDiv.textContent = 'Lỗi: ' + err.message;
+        }
+    });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1226 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frontend Learning Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #f0f4f8;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+        }
+        
+        .card {
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .flow-element {
+            transition: all 0.4s ease;
+            cursor: pointer;
+            position: relative;
+            z-index: 20;
+        }
+        
+        .flow-element:hover {
+            transform: scale(1.05);
+        }
+        
+        .flow-element.active {
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.5);
+            transform: scale(1.05);
+        }
+        
+        .flow-element.completed {
+            border-color: #10b981;
+        }
+        
+        .flow-element.completed .step-number {
+            background-color: #10b981;
+        }
+        
+        .step-number {
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            width: 24px;
+            height: 24px;
+            background-color: #4f46e5;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            border: 2px solid white;
+        }
+        
+        .code-block {
+            font-family: monospace;
+            background-color: #1e293b;
+            color: #e2e8f0;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            overflow-x: auto;
+        }
+        
+        .code-comment { color: #94a3b8; }
+        .code-keyword { color: #c084fc; }
+        .code-string { color: #86efac; }
+        .code-tag { color: #38bdf8; }
+        .code-attr { color: #fb923c; }
+        
+        .flow-path {
+            position: absolute;
+            z-index: 10;
+            pointer-events: none;
+        }
+        
+        .flow-path-line {
+            stroke: #cbd5e1;
+            stroke-width: 2;
+            fill: none;
+            stroke-dasharray: 5;
+            transition: stroke 0.3s ease;
+        }
+        
+        .flow-path-line.active {
+            stroke: #4f46e5;
+            stroke-dasharray: none;
+            animation: dash 1s linear;
+        }
+        
+        @keyframes dash {
+            from {
+                stroke-dashoffset: 100;
+            }
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+        
+        .flow-path-arrow {
+            fill: #cbd5e1;
+            transition: fill 0.3s ease;
+        }
+        
+        .flow-path-arrow.active {
+            fill: #4f46e5;
+        }
+        
+        .data-packet {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #4f46e5;
+            z-index: 15;
+            box-shadow: 0 0 10px rgba(79, 70, 229, 0.7);
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .data-packet.active {
+            animation: movePacket 1.5s linear forwards;
+        }
+        
+        @keyframes movePacket {
+            0% { opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+        
+        .browser-mockup {
+            border-radius: 8px 8px 0 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .browser-dots {
+            display: flex;
+            padding: 10px;
+            background: #f1f5f9;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .browser-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+
+        .dot-red { background-color: #ef4444; }
+        .dot-yellow { background-color: #f59e0b; }
+        .dot-green { background-color: #10b981; }
+        
+        .flow-description {
+            position: absolute;
+            background-color: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 14px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            z-index: 30;
+            opacity: 0;
+            transform: translateY(10px);
+            pointer-events: none;
+            max-width: 250px;
+        }
+        
+        .flow-description.active {
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        
+        .flow-legend {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-right: 16px;
+        }
+        
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+            margin-right: 8px;
+        }
+        
+        .progress-indicator {
+            position: absolute;
+            bottom: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            z-index: 30;
+        }
+        
+        .progress-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #cbd5e1;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+        
+        .progress-dot.active {
+            background-color: #4f46e5;
+            transform: scale(1.3);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="gradient-bg text-white shadow-lg">
+        <div class="container mx-auto px-4 py-6">
+            <div class="flex items-center space-x-2 justify-center">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+                </svg>
+                <h1 class="text-2xl font-bold">Frontend Learning Hub</h1>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- Hero Section -->
+        <section class="mb-12 text-center">
+            <h2 class="text-3xl md:text-4xl font-bold mb-4 text-gray-800">Học Frontend một cách trực quan</h2>
+            <p class="text-lg text-gray-600 mb-8 max-w-3xl mx-auto">Khám phá luồng hoạt động của frontend thông qua các mô hình tương tác và ví dụ thực tế. Học, thực hành và làm chủ kỹ năng frontend của bạn.</p>
+            <div class="flex flex-wrap justify-center gap-4">
+                <button class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-6 rounded-lg transition shadow-md flex items-center" id="start-flow-btn">
+                    <span>Bắt đầu mô phỏng</span>
+                    <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                    </svg>
+                </button>
+                <button class="bg-white hover:bg-gray-100 text-indigo-600 font-medium py-2 px-6 rounded-lg transition border border-indigo-600 shadow-md" id="reset-flow-btn">
+                    Đặt lại
+                </button>
+            </div>
+        </section>
+
+        <!-- Interactive Frontend Flow Model -->
+        <section class="mb-16 bg-white rounded-2xl shadow-lg p-6 md:p-8">
+            <h3 class="text-2xl font-bold mb-6 text-gray-800">Mô hình luồng hoạt động Frontend</h3>
+            
+            <div class="flow-legend">
+                <div class="legend-item">
+                    <div class="legend-color bg-indigo-100 border border-indigo-300"></div>
+                    <span class="text-sm">Tương tác người dùng</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color bg-purple-100 border border-purple-300"></div>
+                    <span class="text-sm">Xử lý sự kiện</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color bg-blue-100 border border-blue-300"></div>
+                    <span class="text-sm">Gửi yêu cầu API</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color bg-green-100 border border-green-300"></div>
+                    <span class="text-sm">Xử lý Backend</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color bg-yellow-100 border border-yellow-300"></div>
+                    <span class="text-sm">Nhận phản hồi</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color bg-red-100 border border-red-300"></div>
+                    <span class="text-sm">Cập nhật DOM</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color bg-orange-100 border border-orange-300"></div>
+                    <span class="text-sm">Hiển thị kết quả</span>
+                </div>
+            </div>
+            
+            <div class="mb-8 bg-gray-50 rounded-xl p-6 border border-gray-200">
+                <div class="relative" style="height: 600px;" id="flow-container">
+                    <!-- SVG Paths for connections -->
+                    <svg class="flow-path" width="100%" height="100%" id="flow-paths">
+                        <!-- Paths will be dynamically created by JavaScript -->
+                    </svg>
+                    
+                    <!-- Data packets for animation -->
+                    <div class="data-packet" id="packet-1-2"></div>
+                    <div class="data-packet" id="packet-2-3"></div>
+                    <div class="data-packet" id="packet-3-4"></div>
+                    <div class="data-packet" id="packet-4-5"></div>
+                    <div class="data-packet" id="packet-5-6"></div>
+                    <div class="data-packet" id="packet-6-7"></div>
+                    <div class="data-packet" id="packet-7-1"></div>
+                    
+                    <!-- Flow descriptions -->
+                    <div class="flow-description" id="desc-1-2">
+                        Người dùng tương tác với giao diện, tạo ra sự kiện được JavaScript bắt và xử lý
+                    </div>
+                    <div class="flow-description" id="desc-2-3">
+                        JavaScript xử lý sự kiện và gửi yêu cầu đến API để lấy dữ liệu
+                    </div>
+                    <div class="flow-description" id="desc-3-4">
+                        Frontend gửi yêu cầu HTTP đến backend để xử lý
+                    </div>
+                    <div class="flow-description" id="desc-4-5">
+                        Backend xử lý yêu cầu, truy vấn dữ liệu và trả về kết quả
+                    </div>
+                    <div class="flow-description" id="desc-5-6">
+                        Frontend nhận phản hồi từ API và chuẩn bị cập nhật giao diện
+                    </div>
+                    <div class="flow-description" id="desc-6-7">
+                        JavaScript cập nhật DOM với dữ liệu mới nhận được
+                    </div>
+                    <div class="flow-description" id="desc-7-1">
+                        Trình duyệt hiển thị giao diện đã cập nhật cho người dùng
+                    </div>
+
+                    <!-- User Interaction -->
+                    <div class="flow-element absolute top-0 left-0 w-64 bg-indigo-100 border-2 border-indigo-300 rounded-lg p-4" id="user-interaction" data-step="1">
+                        <div class="step-number">1</div>
+                        <div class="flex items-center mb-2">
+                            <svg class="w-6 h-6 text-indigo-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"></path>
+                            </svg>
+                            <h4 class="font-semibold text-indigo-800">Tương tác người dùng</h4>
+                        </div>
+                        <p class="text-sm text-indigo-700">Người dùng tương tác với giao diện (click, nhập liệu, v.v.)</p>
+                        <div class="mt-2 bg-white p-2 rounded border border-indigo-200">
+                            <div class="flex items-center justify-center">
+                                <button class="bg-blue-500 hover:bg-blue-600 text-white text-sm py-1 px-3 rounded" id="user-click-btn">
+                                    Click me!
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Event Handling -->
+                    <div class="flow-element absolute top-0 right-0 w-64 bg-purple-100 border-2 border-purple-300 rounded-lg p-4" id="event-handling" data-step="2">
+                        <div class="step-number">2</div>
+                        <div class="flex items-center mb-2">
+                            <svg class="w-6 h-6 text-purple-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path>
+                            </svg>
+                            <h4 class="font-semibold text-purple-800">Xử lý sự kiện</h4>
+                        </div>
+                        <p class="text-sm text-purple-700">JavaScript bắt và xử lý sự kiện từ người dùng</p>
+                        <div class="mt-2 bg-white p-2 rounded border border-purple-200">
+                            <div class="code-block text-xs">
+                                <span class="code-keyword">function</span> <span class="code-attr">handleClick</span>() {<br>
+                                &nbsp;&nbsp;<span class="code-comment">// Xử lý sự kiện</span><br>
+                                &nbsp;&nbsp;getData();<br>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- API Request -->
+                    <div class="flow-element absolute top-1/3 right-0 w-64 bg-blue-100 border-2 border-blue-300 rounded-lg p-4" id="api-request" data-step="3">
+                        <div class="step-number">3</div>
+                        <div class="flex items-center mb-2">
+                            <svg class="w-6 h-6 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
+                            </svg>
+                            <h4 class="font-semibold text-blue-800">Gửi yêu cầu API</h4>
+                        </div>
+                        <p class="text-sm text-blue-700">Frontend gửi yêu cầu đến backend/API</p>
+                        <div class="mt-2 bg-white p-2 rounded border border-blue-200">
+                            <div class="code-block text-xs">
+                                <span class="code-keyword">async function</span> <span class="code-attr">getData</span>() {<br>
+                                &nbsp;&nbsp;<span class="code-keyword">const</span> res = <span class="code-keyword">await</span> fetch(<span class="code-string">'/api/data'</span>);<br>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Backend Processing -->
+                    <div class="flow-element absolute top-2/3 right-0 w-64 bg-green-100 border-2 border-green-300 rounded-lg p-4" id="backend-processing" data-step="4">
+                        <div class="step-number">4</div>
+                        <div class="flex items-center mb-2">
+                            <svg class="w-6 h-6 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"></path>
+                            </svg>
+                            <h4 class="font-semibold text-green-800">Xử lý Backend</h4>
+                        </div>
+                        <p class="text-sm text-green-700">Backend xử lý yêu cầu và truy vấn dữ liệu</p>
+                        <div class="mt-2 bg-white p-2 rounded border border-green-200">
+                            <div class="code-block text-xs">
+                                <span class="code-comment">// Server-side code</span><br>
+                                <span class="code-keyword">app</span>.<span class="code-attr">get</span>(<span class="code-string">'/api/data'</span>, (req, res) => {<br>
+                                &nbsp;&nbsp;res.<span class="code-attr">json</span>(data);<br>
+                                });
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- API Response (centered) -->
+                    <div class="flow-element absolute left-1/2 bottom-[18%] transform -translate-x-1/2 w-64 bg-yellow-100 border-2 border-yellow-300 rounded-lg p-4 z-20" id="api-response" data-step="5" style="box-shadow:0 4px 24px 0 rgba(0,0,0,0.08);">
+                        <div class="step-number">5</div>
+                        <div class="flex items-center mb-2">
+                            <svg class="w-6 h-6 text-yellow-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                            </svg>
+                            <h4 class="font-semibold text-yellow-800">Nhận phản hồi</h4>
+                        </div>
+                        <p class="text-sm text-yellow-700">Frontend nhận dữ liệu từ API</p>
+                        <div class="mt-2 bg-white p-2 rounded border border-yellow-200">
+                            <div class="code-block text-xs">
+                                <span class="code-keyword">const</span> data = <span class="code-keyword">await</span> res.<span class="code-attr">json</span>();<br>
+                                <span class="code-attr">updateUI</span>(data);
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- DOM Update -->
+                    <div class="flow-element absolute bottom-0 left-0 w-64 bg-red-100 border-2 border-red-300 rounded-lg p-4" id="dom-update" data-step="6">
+                        <div class="step-number">6</div>
+                        <div class="flex items-center mb-2">
+                            <svg class="w-6 h-6 text-red-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                            </svg>
+                            <h4 class="font-semibold text-red-800">Cập nhật DOM</h4>
+                        </div>
+                        <p class="text-sm text-red-700">JavaScript cập nhật DOM với dữ liệu mới</p>
+                        <div class="mt-2 bg-white p-2 rounded border border-red-200">
+                            <div class="code-block text-xs">
+                                <span class="code-keyword">function</span> <span class="code-attr">updateUI</span>(data) {<br>
+                                &nbsp;&nbsp;document.<span class="code-attr">getElementById</span>(<span class="code-string">'result'</span>).<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;innerHTML = data.message;<br>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Render Result -->
+                    <div class="flow-element absolute top-1/3 left-0 w-64 bg-orange-100 border-2 border-orange-300 rounded-lg p-4" id="render-result" data-step="7">
+                        <div class="step-number">7</div>
+                        <div class="flex items-center mb-2">
+                            <svg class="w-6 h-6 text-orange-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                            </svg>
+                            <h4 class="font-semibold text-orange-800">Hiển thị kết quả</h4>
+                        </div>
+                        <p class="text-sm text-orange-700">Trình duyệt hiển thị giao diện đã cập nhật</p>
+                        <div class="mt-2 bg-white p-2 rounded border border-orange-200">
+                            <div class="browser-mockup">
+                                <div class="browser-dots">
+                                    <div class="browser-dot dot-red"></div>
+                                    <div class="browser-dot dot-yellow"></div>
+                                    <div class="browser-dot dot-green"></div>
+                                </div>
+                                <div class="p-2">
+                                    <p class="text-sm text-center" id="result-display">Đang chờ dữ liệu...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Progress indicator -->
+                    <div class="progress-indicator">
+                        <div class="progress-dot" data-step="1"></div>
+                        <div class="progress-dot" data-step="2"></div>
+                        <div class="progress-dot" data-step="3"></div>
+                        <div class="progress-dot" data-step="4"></div>
+                        <div class="progress-dot" data-step="5"></div>
+                        <div class="progress-dot" data-step="6"></div>
+                        <div class="progress-dot" data-step="7"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tabs for Content -->
+            <div class="mb-4 border-b border-gray-200">
+                <ul class="flex flex-wrap -mb-px" id="content-tabs">
+                    <li class="mr-2">
+                        <button class="tab-btn inline-block py-2 px-4 font-medium rounded-t-lg border-b-2 border-transparent hover:text-indigo-600 hover:border-indigo-300 active" data-tab="theory">
+                            Lý thuyết
+                        </button>
+                    </li>
+                    <li class="mr-2">
+                        <button class="tab-btn inline-block py-2 px-4 font-medium rounded-t-lg border-b-2 border-transparent hover:text-indigo-600 hover:border-indigo-300" data-tab="practice">
+                            Thực hành
+                        </button>
+                    </li>
+                    <li>
+                        <button class="tab-btn inline-block py-2 px-4 font-medium rounded-t-lg border-b-2 border-transparent hover:text-indigo-600 hover:border-indigo-300" data-tab="resources">
+                            Tài nguyên
+                        </button>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- Tab Content -->
+            <div class="tab-content active" id="theory-content">
+                <h4 class="text-xl font-semibold mb-4 text-gray-800">Luồng hoạt động Frontend</h4>
+                <p class="text-gray-700 mb-4">Luồng hoạt động frontend là quá trình từ khi người dùng tương tác với giao diện cho đến khi hiển thị kết quả trên trình duyệt. Dưới đây là các bước chính:</p>
+                
+                <div class="space-y-4">
+                    <div class="bg-indigo-50 p-4 rounded-lg border border-indigo-200">
+                        <h5 class="font-semibold text-indigo-800 mb-2">1. Tương tác người dùng</h5>
+                        <p class="text-gray-700">Người dùng tương tác với giao diện thông qua các hành động như nhấp chuột, nhập liệu, kéo thả, v.v. Các tương tác này tạo ra các sự kiện (events) trong trình duyệt.</p>
+                    </div>
+                    
+                    <div class="bg-purple-50 p-4 rounded-lg border border-purple-200">
+                        <h5 class="font-semibold text-purple-800 mb-2">2. Xử lý sự kiện</h5>
+                        <p class="text-gray-700">JavaScript bắt và xử lý các sự kiện thông qua các event listeners. Khi một sự kiện xảy ra, các hàm xử lý tương ứng sẽ được gọi.</p>
+                    </div>
+                    
+                    <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                        <h5 class="font-semibold text-blue-800 mb-2">3. Gửi yêu cầu API</h5>
+                        <p class="text-gray-700">Nếu cần dữ liệu từ server, frontend sẽ gửi yêu cầu (request) đến backend thông qua các API calls, thường sử dụng AJAX, Fetch API hoặc các thư viện như Axios.</p>
+                    </div>
+                    
+                    <div class="bg-green-50 p-4 rounded-lg border border-green-200">
+                        <h5 class="font-semibold text-green-800 mb-2">4. Xử lý Backend</h5>
+                        <p class="text-gray-700">Backend nhận yêu cầu, xử lý logic nghiệp vụ, truy vấn cơ sở dữ liệu và chuẩn bị dữ liệu để trả về cho frontend.</p>
+                    </div>
+                    
+                    <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+                        <h5 class="font-semibold text-yellow-800 mb-2">5. Nhận phản hồi</h5>
+                        <p class="text-gray-700">Frontend nhận phản hồi (response) từ backend, thường ở dạng JSON, và xử lý dữ liệu nhận được.</p>
+                    </div>
+                    
+                    <div class="bg-red-50 p-4 rounded-lg border border-red-200">
+                        <h5 class="font-semibold text-red-800 mb-2">6. Cập nhật DOM</h5>
+                        <p class="text-gray-700">JavaScript sử dụng dữ liệu nhận được để cập nhật DOM (Document Object Model), thay đổi cấu trúc, nội dung hoặc kiểu của trang web.</p>
+                    </div>
+                    
+                    <div class="bg-orange-50 p-4 rounded-lg border border-orange-200">
+                        <h5 class="font-semibold text-orange-800 mb-2">7. Hiển thị kết quả</h5>
+                        <p class="text-gray-700">Trình duyệt hiển thị giao diện đã cập nhật cho người dùng, hoàn thành một chu kỳ của luồng hoạt động frontend.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="practice-content">
+                <h4 class="text-xl font-semibold mb-4 text-gray-800">Thực hành JavaScript cơ bản</h4>
+                <!-- Ví dụ 1: In ra hello -->
+                <div class="mb-6 bg-gray-50 rounded-lg p-4 border border-gray-200">
+                    <h5 class="text-lg font-semibold mb-2 text-gray-800">1. In ra "hello" khi nhấn nút</h5>
+                    <p class="text-gray-700 mb-3">Nhấn nút bên dưới để in ra "hello" trên màn hình.</p>
+                    <div class="code-block mb-3">
+                        <span class="code-keyword">function</span> <span class="code-attr">sayHello</span>() {<br>
+                        &nbsp;&nbsp;document.<span class="code-attr">getElementById</span>(<span class="code-string">'hello-result'</span>).innerText = <span class="code-string">'hello'</span>;<br>
+                        &nbsp;&nbsp;alert(<span class="code-string">'Bạn đã ấn nút In ra hello!'</span>);<br>
+                        }
+                    </div>
+                    <div class="bg-white p-3 rounded border border-gray-300 mb-3 flex justify-center">
+                        <button onclick="sayHello()" class="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-lg transition">
+                            In ra hello
+                        </button>
+                    </div>
+                    <div id="hello-result" class="text-center text-lg text-green-600 font-semibold"></div>
+                </div>
+
+                <!-- Ví dụ 2: Cộng 2 số -->
+                <div class="mb-6 bg-gray-50 rounded-lg p-4 border border-gray-200">
+                    <h5 class="text-lg font-semibold mb-2 text-gray-800">2. Cộng hai số</h5>
+                    <p class="text-gray-700 mb-3">Nhập hai số và nhấn nút để tính tổng.</p>
+                    <div class="code-block mb-3">
+                        <span class="code-keyword">function</span> <span class="code-attr">sumNumbers</span>() {<br>
+                        &nbsp;&nbsp;<span class="code-keyword">const</span> a = Number(document.<span class="code-attr">getElementById</span>(<span class="code-string">'num1'</span>).value);<br>
+                        &nbsp;&nbsp;<span class="code-keyword">const</span> b = Number(document.<span class="code-attr">getElementById</span>(<span class="code-string">'num2'</span>).value);<br>
+                        &nbsp;&nbsp;document.<span class="code-attr">getElementById</span>(<span class="code-string">'sum-result'</span>).innerText = a + b;<br>
+                        }
+                    </div>
+                    <div class="flex gap-2 mb-3">
+                        <input id="num1" type="number" class="border rounded px-2 py-1 w-20" placeholder="Số 1">
+                        <span class="self-center">+</span>
+                        <input id="num2" type="number" class="border rounded px-2 py-1 w-20" placeholder="Số 2">
+                        <button onclick="sumNumbers()" class="bg-indigo-600 hover:bg-indigo-700 text-white py-1 px-4 rounded-lg transition">Tính tổng</button>
+                    </div>
+                    <div id="sum-result" class="text-center text-lg text-green-600 font-semibold"></div>
+                </div>
+
+                <!-- Ví dụ 3: Đổi màu nền -->
+                <div class="mb-6 bg-gray-50 rounded-lg p-4 border border-gray-200">
+                    <h5 class="text-lg font-semibold mb-2 text-gray-800">3. Đổi màu nền trang</h5>
+                    <p class="text-gray-700 mb-3">Nhấn nút để đổi màu nền trang web.</p>
+                    <div class="code-block mb-3">
+                        <span class="code-keyword">function</span> <span class="code-attr">changeBgColor</span>() {<br>
+                        &nbsp;&nbsp;document.body.style.backgroundColor = <span class="code-string">'#fef08a'</span>;<br>
+                        }
+                    </div>
+                    <div class="flex justify-center mb-3">
+                        <button onclick="changeBgColor()" class="bg-yellow-400 hover:bg-yellow-500 text-white py-2 px-4 rounded-lg transition">Đổi màu nền</button>
+                    </div>
+                </div>
+
+                <!-- Ví dụ 4: Nhập tên và chào -->
+                <div class="mb-6 bg-gray-50 rounded-lg p-4 border border-gray-200">
+                    <h5 class="text-lg font-semibold mb-2 text-gray-800">4. Nhập tên và chào</h5>
+                    <p class="text-gray-700 mb-3">Nhập tên của bạn và nhấn nút để được chào.</p>
+                    <div class="code-block mb-3">
+                        <span class="code-keyword">function</span> <span class="code-attr">greetName</span>() {<br>
+                        &nbsp;&nbsp;<span class="code-keyword">const</span> name = document.<span class="code-attr">getElementById</span>(<span class="code-string">'your-name'</span>).value;<br>
+                        &nbsp;&nbsp;document.<span class="code-attr">getElementById</span>(<span class="code-string">'greet-result'</span>).innerText = <span class="code-string">'Xin chào, '</span> + name + <span class="code-string">'!'</span>;<br>
+                        }
+                    </div>
+                    <div class="flex gap-2 mb-3">
+                        <input id="your-name" type="text" class="border rounded px-2 py-1" placeholder="Nhập tên">
+                        <button onclick="greetName()" class="bg-green-500 hover:bg-green-600 text-white py-1 px-4 rounded-lg transition">Chào</button>
+                    </div>
+                    <div id="greet-result" class="text-center text-lg text-green-600 font-semibold"></div>
+                </div>
+
+                <!-- Ví dụ 5: Toggle ẩn/hiện nội dung -->
+                <div class="mb-6 bg-gray-50 rounded-lg p-4 border border-gray-200">
+                    <h5 class="text-lg font-semibold mb-2 text-gray-800">5. Ẩn/hiện nội dung</h5>
+                    <p class="text-gray-700 mb-3">Nhấn nút để ẩn hoặc hiện đoạn văn bản bên dưới.</p>
+                    <div class="code-block mb-3">
+                        <span class="code-keyword">function</span> <span class="code-attr">toggleContent</span>() {<br>
+                        &nbsp;&nbsp;<span class="code-keyword">const</span> el = document.<span class="code-attr">getElementById</span>(<span class="code-string">'toggle-demo'</span>);<br>
+                        &nbsp;&nbsp;el.style.display = el.style.display === <span class="code-string">'none'</span> ? <span class="code-string">'block'</span> : <span class="code-string">'none'</span>;<br>
+                        }
+                    </div>
+                    <div class="flex justify-center mb-3">
+                        <button onclick="toggleContent()" class="bg-indigo-500 hover:bg-indigo-600 text-white py-1 px-4 rounded-lg transition">Ẩn/Hiện</button>
+                    </div>
+                    <div id="toggle-demo" class="text-center text-base text-gray-700">Đây là nội dung có thể ẩn/hiện.</div>
+                </div>
+            </div>
+            
+            <!-- Đã xóa tab-content 'Ví dụ' -->
+            
+            <div class="tab-content" id="resources-content">
+                <h4 class="text-xl font-semibold mb-4 text-gray-800">Tài nguyên học tập</h4>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                        <h5 class="text-lg font-semibold mb-2 text-gray-800">Tài liệu tham khảo</h5>
+                        <ul class="list-disc pl-5 text-gray-700">
+                            <li class="mb-2"><a href="#" class="text-indigo-600 hover:underline">MDN Web Docs - JavaScript</a></li>
+                            <li class="mb-2"><a href="#" class="text-indigo-600 hover:underline">W3Schools - Frontend Tutorial</a></li>
+                            <li class="mb-2"><a href="#" class="text-indigo-600 hover:underline">JavaScript.info - Modern JavaScript</a></li>
+                            <li class="mb-2"><a href="#" class="text-indigo-600 hover:underline">CSS-Tricks - Frontend Development</a></li>
+                            <li class="mb-2"><a href="#" class="text-indigo-600 hover:underline">Frontend Masters - Web Development</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                        <h5 class="text-lg font-semibold mb-2 text-gray-800">Video hướng dẫn</h5>
+                        <ul class="space-y-3 text-gray-700">
+                            <li class="flex items-center">
+                                <svg class="w-5 h-5 text-red-600 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M10 0C4.478 0 0 4.478 0 10c0 5.523 4.478 10 10 10 5.523 0 10-4.477 10-10 0-5.522-4.477-10-10-10zm3.7 10.4l-5.5 3.2c-.2.1-.4.1-.6.1-.2 0-.3-.1-.5-.1-.3-.2-.4-.5-.4-.8V6.8c0-.3.1-.6.4-.8.3-.2.6-.2.9 0l5.5 3.2c.3.2.5.5.5.9 0 .3-.2.7-.5.9z"></path>
+                                </svg>
+                                <a href="#" class="text-indigo-600 hover:underline">Giới thiệu về Frontend Development</a>
+                            </li>
+                            <li class="flex items-center">
+                                <svg class="w-5 h-5 text-red-600 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M10 0C4.478 0 0 4.478 0 10c0 5.523 4.478 10 10 10 5.523 0 10-4.477 10-10 0-5.522-4.477-10-10-10zm3.7 10.4l-5.5 3.2c-.2.1-.4.1-.6.1-.2 0-.3-.1-.5-.1-.3-.2-.4-.5-.4-.8V6.8c0-.3.1-.6.4-.8.3-.2.6-.2.9 0l5.5 3.2c.3.2.5.5.5.9 0 .3-.2.7-.5.9z"></path>
+                                </svg>
+                                <a href="#" class="text-indigo-600 hover:underline">Luồng hoạt động của ứng dụng web</a>
+                            </li>
+                            <li class="flex items-center">
+                                <svg class="w-5 h-5 text-red-600 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M10 0C4.478 0 0 4.478 0 10c0 5.523 4.478 10 10 10 5.523 0 10-4.477 10-10 0-5.522-4.477-10-10-10zm3.7 10.4l-5.5 3.2c-.2.1-.4.1-.6.1-.2 0-.3-.1-.5-.1-.3-.2-.4-.5-.4-.8V6.8c0-.3.1-.6.4-.8.3-.2.6-.2.9 0l5.5 3.2c.3.2.5.5.5.9 0 .3-.2.7-.5.9z"></path>
+                                </svg>
+                                <a href="#" class="text-indigo-600 hover:underline">Tương tác với API trong JavaScript</a>
+                            </li>
+                            <li class="flex items-center">
+                                <svg class="w-5 h-5 text-red-600 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M10 0C4.478 0 0 4.478 0 10c0 5.523 4.478 10 10 10 5.523 0 10-4.477 10-10 0-5.522-4.477-10-10-10zm3.7 10.4l-5.5 3.2c-.2.1-.4.1-.6.1-.2 0-.3-.1-.5-.1-.3-.2-.4-.5-.4-.8V6.8c0-.3.1-.6.4-.8.3-.2.6-.2.9 0l5.5 3.2c.3.2.5.5.5.9 0 .3-.2.7-.5.9z"></path>
+                                </svg>
+                                <a href="#" class="text-indigo-600 hover:underline">Xây dựng ứng dụng web hiện đại</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-10">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <!-- Footer content removed as requested -->
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-6 text-center text-gray-400">
+                <p>&copy; 2023 Frontend Learning Hub. Tất cả các quyền được bảo lưu.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function sayHello() {
+            document.getElementById('hello-result').innerText = 'hello';
+            alert('Bạn đã ấn nút In ra hello!');
+        }
+        // Declare flowContainer once for global use
+        const flowContainer = document.getElementById('flow-container');
+        document.addEventListener('DOMContentLoaded', function() {
+            // Drag and drop for flow elements
+            let dragEl = null, offsetX = 0, offsetY = 0;
+            function onDragStart(e) {
+                dragEl = this;
+                dragEl.classList.add('dragging');
+                const rect = dragEl.getBoundingClientRect();
+                if (e.type === 'touchstart') {
+                    offsetX = e.touches[0].clientX - rect.left;
+                    offsetY = e.touches[0].clientY - rect.top;
+                } else {
+                    offsetX = e.clientX - rect.left;
+                    offsetY = e.clientY - rect.top;
+                }
+                document.body.style.userSelect = 'none';
+            }
+            function onDragMove(e) {
+                if (!dragEl) return;
+                let x, y;
+                if (e.type === 'touchmove') {
+                    x = e.touches[0].clientX;
+                    y = e.touches[0].clientY;
+                } else {
+                    x = e.clientX;
+                    y = e.clientY;
+                }
+                const containerRect = flowContainer.getBoundingClientRect();
+                let left = x - containerRect.left - offsetX;
+                let top = y - containerRect.top - offsetY;
+                // Optional: keep inside container
+                left = Math.max(0, Math.min(left, containerRect.width - dragEl.offsetWidth));
+                top = Math.max(0, Math.min(top, containerRect.height - dragEl.offsetHeight));
+                dragEl.style.left = left + 'px';
+                dragEl.style.top = top + 'px';
+                dragEl.style.right = '';
+                dragEl.style.bottom = '';
+                dragEl.style.transform = '';
+                // Update paths
+                if (typeof createPaths === 'function') createPaths();
+            }
+            function onDragEnd() {
+                if (dragEl) dragEl.classList.remove('dragging');
+                dragEl = null;
+                document.body.style.userSelect = '';
+            }
+            document.querySelectorAll('.flow-element').forEach(el => {
+                el.style.position = 'absolute';
+                el.style.cursor = 'move';
+                el.addEventListener('mousedown', onDragStart);
+                el.addEventListener('touchstart', onDragStart);
+            });
+            document.addEventListener('mousemove', onDragMove);
+            document.addEventListener('touchmove', onDragMove);
+            document.addEventListener('mouseup', onDragEnd);
+            document.addEventListener('touchend', onDragEnd);
+            // Tab functionality
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // Remove active class from all buttons
+                    tabBtns.forEach(b => b.classList.remove('active', 'text-indigo-600', 'border-indigo-600'));
+                    
+                    // Add active class to clicked button
+                    this.classList.add('active', 'text-indigo-600', 'border-indigo-600');
+                    
+                    // Hide all tab contents
+                    tabContents.forEach(content => content.classList.remove('active'));
+                    
+                    // Show the selected tab content
+                    const tabId = this.getAttribute('data-tab');
+                    document.getElementById(`${tabId}-content`).classList.add('active');
+                });
+            });
+            
+            // Flow model elements
+            // (flowContainer đã được khai báo ở ngoài)
+            const flowElements = document.querySelectorAll('.flow-element');
+            const flowPaths = document.getElementById('flow-paths');
+            const dataPackets = document.querySelectorAll('.data-packet');
+            const descriptions = document.querySelectorAll('.flow-description');
+            const progressDots = document.querySelectorAll('.progress-dot');
+            const resultDisplay = document.getElementById('result-display');
+            
+            // Define the flow connections
+            const connections = [
+                { from: 'user-interaction', to: 'event-handling', path: 'M1 M2', desc: 'desc-1-2', packet: 'packet-1-2' },
+                { from: 'event-handling', to: 'api-request', path: 'M1 M2', desc: 'desc-2-3', packet: 'packet-2-3' },
+                { from: 'api-request', to: 'backend-processing', path: 'M1 M2', desc: 'desc-3-4', packet: 'packet-3-4' },
+                { from: 'backend-processing', to: 'api-response', path: 'M1 M2', desc: 'desc-4-5', packet: 'packet-4-5' },
+                { from: 'api-response', to: 'dom-update', path: 'M1 M2', desc: 'desc-5-6', packet: 'packet-5-6' },
+                { from: 'dom-update', to: 'render-result', path: 'M1 M2', desc: 'desc-6-7', packet: 'packet-6-7' },
+                { from: 'render-result', to: 'user-interaction', path: 'M1 M2', desc: 'desc-7-1', packet: 'packet-7-1' }
+            ];
+            
+            // Create SVG paths for connections
+            function createPaths() {
+                // Clear existing paths
+                flowPaths.innerHTML = '';
+                connections.forEach((conn, index) => {
+                    const fromEl = document.getElementById(conn.from);
+                    const toEl = document.getElementById(conn.to);
+                    if (!fromEl || !toEl) return;
+                    const fromRect = fromEl.getBoundingClientRect();
+                    const toRect = toEl.getBoundingClientRect();
+                    const containerRect = flowContainer.getBoundingClientRect();
+                    // Calculate positions relative to container
+                    const fromX = fromRect.left + fromRect.width / 2 - containerRect.left;
+                    const fromY = fromRect.top + fromRect.height / 2 - containerRect.top;
+                    const toX = toRect.left + toRect.width / 2 - containerRect.left;
+                    const toY = toRect.top + toRect.height / 2 - containerRect.top;
+                    // Create path
+                    let pathData;
+                    if (Math.abs(fromY - toY) < 50) {
+                        // Horizontal connection
+                        const midX = (fromX + toX) / 2;
+                        pathData = `M ${fromX} ${fromY} C ${midX} ${fromY}, ${midX} ${toY}, ${toX} ${toY}`;
+                    } else if (Math.abs(fromX - toX) < 50) {
+                        // Vertical connection
+                        const midY = (fromY + toY) / 2;
+                        pathData = `M ${fromX} ${fromY} C ${fromX} ${midY}, ${toX} ${midY}, ${toX} ${toY}`;
+                    } else {
+                        // Diagonal connection
+                        const offsetX = (toX - fromX) * 0.4;
+                        const offsetY = (toY - fromY) * 0.4;
+                        pathData = `M ${fromX} ${fromY} C ${fromX + offsetX} ${fromY}, ${toX - offsetX} ${toY}, ${toX} ${toY}`;
+                    }
+                    // Create fill path (for animation fill effect)
+                    const fillPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                    fillPath.setAttribute('d', pathData);
+                    fillPath.setAttribute('class', 'flow-path-fill');
+                    fillPath.setAttribute('data-fill-for', `path-${index + 1}`);
+                    fillPath.setAttribute('stroke', '#6366f1');
+                    fillPath.setAttribute('stroke-width', '6');
+                    fillPath.setAttribute('fill', 'none');
+                    fillPath.setAttribute('stroke-dasharray', `0,10000`);
+                    flowPaths.appendChild(fillPath);
+                    // Create path element (main line)
+                    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                    path.setAttribute('d', pathData);
+                    path.setAttribute('class', 'flow-path-line');
+                    path.setAttribute('id', `path-${index + 1}`);
+                    flowPaths.appendChild(path);
+                    // Create arrow marker
+                    const marker = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
+                    marker.setAttribute('id', `arrowhead-${index + 1}`);
+                    marker.setAttribute('markerWidth', '10');
+                    marker.setAttribute('markerHeight', '7');
+                    marker.setAttribute('refX', '10');
+                    marker.setAttribute('refY', '3.5');
+                    marker.setAttribute('orient', 'auto');
+                    const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+                    polygon.setAttribute('points', '0 0, 10 3.5, 0 7');
+                    polygon.setAttribute('class', 'flow-path-arrow');
+                    polygon.setAttribute('id', `arrow-${index + 1}`);
+                    marker.appendChild(polygon);
+                    flowPaths.appendChild(marker);
+                    path.setAttribute('marker-end', `url(#arrowhead-${index + 1})`);
+                    // Position data packet
+                    const packetEl = document.getElementById(conn.packet);
+                    if (packetEl) {
+                        packetEl.style.left = `${fromX}px`;
+                        packetEl.style.top = `${fromY}px`;
+                        // Store path data for animation
+                        packetEl.dataset.pathId = `path-${index + 1}`;
+                    }
+                    // Position description
+                    const descEl = document.getElementById(conn.desc);
+                    if (descEl) {
+                        const midX = (fromX + toX) / 2;
+                        const midY = (fromY + toY) / 2;
+                        descEl.style.left = `${midX}px`;
+                        descEl.style.top = `${midY - 40}px`;
+                        descEl.style.transform = 'translate(-50%, -50%)';
+                    }
+                });
+            }
+            
+            // Initialize paths
+            createPaths();
+            
+            // Update paths on window resize
+            window.addEventListener('resize', createPaths);
+            
+            // Flow animation variables
+            let flowInterval;
+            let currentStep = 0;
+            const steps = [
+                'user-interaction',
+                'event-handling',
+                'api-request',
+                'backend-processing',
+                'api-response',
+                'dom-update',
+                'render-result'
+            ];
+            
+            // Reset flow animation
+            function resetFlow() {
+                clearInterval(flowInterval);
+                currentStep = 0;
+                
+                // Reset all elements
+                flowElements.forEach(el => {
+                    el.classList.remove('active', 'completed');
+                });
+                
+                // Reset all paths
+                document.querySelectorAll('.flow-path-line').forEach(path => {
+                    path.classList.remove('active');
+                });
+                document.querySelectorAll('.flow-path-arrow').forEach(arrow => {
+                    arrow.classList.remove('active');
+                });
+                // Reset all fill paths
+                document.querySelectorAll('.flow-path-fill').forEach(fill => {
+                    fill.setAttribute('stroke-dasharray', `0,10000`);
+                    fill.style.display = '';
+                });
+                // Reset all data packets
+                dataPackets.forEach(packet => {
+                    packet.classList.remove('active');
+                    packet.style.transform = '';
+                });
+                
+                // Reset all descriptions
+                descriptions.forEach(desc => {
+                    desc.classList.remove('active');
+                });
+                
+                // Reset progress dots
+                progressDots.forEach(dot => {
+                    dot.classList.remove('active');
+                });
+                
+                // Reset result display
+                resultDisplay.textContent = 'Đang chờ dữ liệu...';
+                resultDisplay.classList.remove('text-green-600', 'font-medium');
+            }
+            
+            // Animate data packet along path with fill effect
+            function animatePacket(packetEl, pathId, callback) {
+                const path = document.getElementById(pathId);
+                if (!path || !packetEl) return;
+                // Get path length
+                const pathLength = path.getTotalLength();
+                // Select the fill path (always exists)
+                let fillPath = path.parentNode.querySelector(`.flow-path-fill[data-fill-for="${pathId}"]`);
+                if (!fillPath) return;
+                fillPath.setAttribute('d', path.getAttribute('d'));
+                fillPath.style.display = '';
+                // Animate
+                let start;
+                const duration = 1500;
+                function step(timestamp) {
+                    if (!start) start = timestamp;
+                    const elapsed = timestamp - start;
+                    const progress = Math.min(elapsed / duration, 1);
+                    // Animate the fill path stroke-dasharray (nạp đầy dần)
+                    fillPath.setAttribute('stroke-dasharray', `${progress * pathLength},${pathLength}`);
+                    // Animate the packet
+                    if ('offsetPath' in packetEl.style) {
+                        packetEl.style.offsetPath = `path('${path.getAttribute('d')}')`;
+                        packetEl.style.offsetDistance = `${progress * 100}%`;
+                        packetEl.classList.add('active');
+                    } else {
+                        // Fallback: move with transform
+                        const point = path.getPointAtLength(progress * pathLength);
+                        packetEl.style.transform = `translate(${point.x}px, ${point.y}px)`;
+                        packetEl.classList.add('active');
+                    }
+                    if (progress < 1) {
+                        window.requestAnimationFrame(step);
+                    } else {
+                        packetEl.classList.remove('active');
+                        fillPath.style.display = 'none';
+                        if (callback) callback();
+                    }
+                }
+                window.requestAnimationFrame(step);
+            }
+            
+            // Start flow animation
+            function startFlow() {
+                resetFlow();
+                
+                // Activate first step
+                const firstElement = document.getElementById(steps[0]);
+                firstElement.classList.add('active');
+                
+                // Activate first progress dot
+                document.querySelector(`.progress-dot[data-step="1"]`).classList.add('active');
+                
+                flowInterval = setInterval(() => {
+                    // Move to next step
+                    currentStep++;
+                    
+                    if (currentStep >= steps.length) {
+                        clearInterval(flowInterval);
+                        
+                        // Complete the cycle by animating from last to first
+                        const lastIndex = steps.length - 1;
+                        const lastElement = document.getElementById(steps[lastIndex]);
+                        const firstElement = document.getElementById(steps[0]);
+                        
+                        lastElement.classList.add('completed');
+                        
+                        // Activate the last path
+                        const lastPath = document.getElementById(`path-${steps.length}`);
+                        const lastArrow = document.getElementById(`arrow-${steps.length}`);
+                        const lastPacket = document.getElementById(`packet-7-1`);
+                        const lastDesc = document.getElementById(`desc-7-1`);
+                        
+                        if (lastPath) lastPath.classList.add('active');
+                        if (lastArrow) lastArrow.classList.add('active');
+                        if (lastDesc) lastDesc.classList.add('active');
+                        
+                        // Animate the last packet
+                        if (lastPacket && lastPath) {
+                            animatePacket(lastPacket, `path-${steps.length}`, () => {
+                                // Reset for another run if needed
+                                setTimeout(() => {
+                                    lastDesc.classList.remove('active');
+                                }, 2000);
+                            });
+                        }
+                        
+                        return;
+                    }
+                    
+                    // Mark previous element as completed
+                    if (currentStep > 0) {
+                        const prevElement = document.getElementById(steps[currentStep - 1]);
+                        prevElement.classList.remove('active');
+                        prevElement.classList.add('completed');
+                    }
+                    
+                    // Activate current element
+                    const currentElement = document.getElementById(steps[currentStep]);
+                    currentElement.classList.add('active');
+                    
+                    // Activate current progress dot
+                    document.querySelector(`.progress-dot[data-step="${currentStep + 1}"]`).classList.add('active');
+                    
+                    // Activate path from previous to current
+                    const pathId = `path-${currentStep}`;
+                    const arrowId = `arrow-${currentStep}`;
+                    const packetId = `packet-${currentStep}-${currentStep + 1}`;
+                    const descId = `desc-${currentStep}-${currentStep + 1}`;
+                    
+                    const path = document.getElementById(pathId);
+                    const arrow = document.getElementById(arrowId);
+                    const packet = document.getElementById(packetId);
+                    const desc = document.getElementById(descId);
+                    
+                    if (path) path.classList.add('active');
+                    if (arrow) arrow.classList.add('active');
+                    if (desc) desc.classList.add('active');
+                    
+                    // Animate packet along path
+                    if (packet && path) {
+                        animatePacket(packet, pathId, () => {
+                            // Hide description after animation
+                            setTimeout(() => {
+                                if (desc) desc.classList.remove('active');
+                            }, 1000);
+                        });
+                    }
+                    
+                    // Update result display at the end
+                    if (currentStep === 6) { // Render Result
+                        resultDisplay.textContent = 'Dữ liệu đã được cập nhật thành công!';
+                        resultDisplay.classList.add('text-green-600', 'font-medium');
+                    }
+                    
+                }, 2500); // Each step takes 2.5 seconds
+            }
+            
+            // Button event listeners
+            document.getElementById('start-flow-btn').addEventListener('click', startFlow);
+            document.getElementById('reset-flow-btn').addEventListener('click', resetFlow);
+            
+            // User click button in the flow model
+            document.getElementById('user-click-btn').addEventListener('click', function() {
+                startFlow();
+            });
+            
+            // Example: Form validation
+            document.getElementById('signup-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const username = document.getElementById('username').value;
+                const email = document.getElementById('email').value;
+                const usernameError = document.getElementById('username-error');
+                const emailError = document.getElementById('email-error');
+                const signupResult = document.getElementById('signup-result');
+                
+                // Reset errors
+                usernameError.classList.add('hidden');
+                emailError.classList.add('hidden');
+                
+                let isValid = true;
+                
+                // Validate username
+                if (!username) {
+                    usernameError.classList.remove('hidden');
+                    isValid = false;
+                }
+                
+                // Validate email
+                if (!email || !email.includes('@')) {
+                    emailError.classList.remove('hidden');
+                    isValid = false;
+                }
+                
+                // Show result
+                if (isValid) {
+                    signupResult.textContent = 'Đăng ký thành công!';
+                    signupResult.classList.remove('hidden', 'text-red-500');
+                    signupResult.classList.add('text-green-500');
+                    
+                    // Reset form
+                    this.reset();
+                } else {
+                    signupResult.textContent = 'Vui lòng kiểm tra lại thông tin.';
+                    signupResult.classList.remove('hidden', 'text-green-500');
+                    signupResult.classList.add('text-red-500');
+                }
+            });
+            
+            // Example: Search functionality
+            document.getElementById('search-input').addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                const items = document.querySelectorAll('.search-item');
+                
+                items.forEach(item => {
+                    const text = item.textContent.toLowerCase();
+                    if (text.includes(searchTerm)) {
+                        item.style.display = 'block';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            });
+            
+            // Example: API call
+            document.getElementById('fetchDataBtn').addEventListener('click', function() {
+                const apiResult = document.getElementById('api-result');
+                apiResult.textContent = 'Đang tải dữ liệu...';
+                
+                // Simulate API call
+                setTimeout(() => {
+                    const mockData = {
+                        message: 'Dữ liệu đã được tải thành công!',
+                        status: 'success'
+                    };
+                    
+                    apiResult.textContent = mockData.message;
+                    apiResult.classList.add('text-green-600', 'font-medium');
+                }, 1500);
+            });
+            
+            // Example: Button click
+            document.getElementById('myButton').addEventListener('click', function() {
+                alert('Button clicked!');
+            });
+            
+            // Add hover effects for flow elements
+            flowElements.forEach(el => {
+                el.addEventListener('mouseenter', function() {
+                    const stepNumber = this.getAttribute('data-step');
+                    const descId = `desc-${stepNumber}-${Number(stepNumber) + 1}`;
+                    const desc = document.getElementById(descId);
+                    
+                    if (desc) {
+                        desc.classList.add('active');
+                    }
+                });
+                
+                el.addEventListener('mouseleave', function() {
+                    const stepNumber = this.getAttribute('data-step');
+                    const descId = `desc-${stepNumber}-${Number(stepNumber) + 1}`;
+                    const desc = document.getElementById(descId);
+                    
+                    if (desc && !desc.classList.contains('keep-active')) {
+                        desc.classList.remove('active');
+                    }
+                });
+            });
+        });
+        </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9629641a1661e2e7',t:'MTc1MzA4NzIwMC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

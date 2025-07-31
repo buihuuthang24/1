@@ -28,31 +28,30 @@
         /* HEADER DANH MỤC - ĐỒNG BỘ HOME */
         /* NAVBAR HEADER (giữ cố định khi cuộn trang) */
         .navbar-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 1rem 0;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            z-index: 1000;
-            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+           background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+           color: white;
+           padding: 1rem 0;
+           position: fixed;
+           width: 100%;
+           top: 0;
+           z-index: 1000;
+           box-shadow: 0 2px 20px rgba(0,0,0,0.1);
         }
         .nav-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 2rem;
+           max-width: 1200px;
+           margin: 0 auto;
+           display: flex;
+           justify-content: space-between;
+           align-items: center;
+           padding: 0 2rem;
         }
         .logo {
-            font-size: 2rem;
-            font-weight: bold;
-            text-decoration: none;
-            color: white;
-            display: flex;
-            align-items: center;
+        font-size: 2rem;
+        font-weight: bold;
+        text-decoration: none;
+        color: white;
+        display: flex;
+        align-items: center;
         }
         .nav-menu {
             display: flex;
@@ -139,18 +138,15 @@
             padding: 0 2rem;
         }
         .logo {
-            font-size: 1.8rem;
+            font-size: 2rem;
             font-weight: bold;
-            text-decoration: none;
             color: white;
             display: flex;
             align-items: center;
+            text-decoration: none;
             gap: 10px;
         }
-        .logo::before {
-            content: '🎓';
-            font-size: 2rem;
-        }
+        /* Đã bỏ .logo::before để tránh lặp icon mũ */
         .nav-menu {
             display: flex;
             list-style: none;
@@ -570,7 +566,10 @@
             });
         });
     </script>
-    <script src="https://cdn.botpress.cloud/webchat/v3.2/inject.js" defer></script>
     <script src="https://files.bpcontent.cloud/2025/07/18/06/20250718063825-OV9W5M1I.js" defer></script>
+    <!-- Nhúng chatbot widget -->
+    <link rel="stylesheet" href="chatbot_widget.css">
+    <div id="chatbot-widget-root"></div>
+    <script src="chatbot_widget.js"></script>
 </body>
 </html>

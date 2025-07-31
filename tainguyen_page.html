@@ -22,62 +22,81 @@
 
         /* Header */
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 1rem 0;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-
-        .nav-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 2rem;
-        }
-
-        .logo {
-            font-size: 2rem;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .logo i {
-            color: #ffd700;
-            animation: pulse 2s infinite;
-        }
-
-        .nav-menu {
-            display: flex;
-            list-style: none;
-            gap: 2rem;
-        }
-
-        .nav-menu a {
-            color: white;
-            text-decoration: none;
-            font-weight: 500;
-            transition: all 0.3s;
-            padding: 0.5rem 1rem;
-            border-radius: 25px;
-        }
-
-        .nav-menu a:hover, .nav-menu a.active {
-            background: rgba(255,255,255,0.2);
-            transform: translateY(-2px);
-        }
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 1rem 0;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+}
+.nav-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 2rem;
+}
+.logo {
+    font-size: 2rem;
+    font-weight: bold;
+    text-decoration: none;
+    color: white;
+    display: flex;
+    align-items: center;
+}
+.nav-menu {
+    display: flex;
+    list-style: none;
+    gap: 2.5rem;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 0;
+    background: none;
+    flex-wrap: nowrap;
+}
+.nav-menu a {
+    color: #fff;
+    text-decoration: none;
+    transition: background 0.25s, color 0.25s, box-shadow 0.25s;
+    padding: 0.85rem 2.7rem;
+    border-radius: 32px;
+    position: relative;
+    overflow: hidden;
+    background: rgba(255,255,255,0.18);
+    font-size: 1.18rem;
+    font-weight: 500;
+    text-align: center;
+    min-width: 140px;
+    max-width: 180px;
+    box-sizing: border-box;
+    box-shadow: 0 2px 12px rgba(102,126,234,0.10);
+    border: 1.5px solid rgba(255,255,255,0.18);
+    letter-spacing: 0.01em;
+    cursor: pointer;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.nav-menu a::before {
+    display: none;
+}
+.nav-menu a:hover {
+    background: #fff;
+    color: #764ba2;
+    box-shadow: 0 4px 18px rgba(118,75,162,0.13);
+    border: 1.5px solid #fff;
+}
 
         /* Main Content */
         .main-content {
             max-width: 1200px;
             margin: 0 auto;
             padding: 2rem;
+            margin-top: 110px; /* Đẩy xuống dưới header cố định */
         }
 
         /* Hero Section */
@@ -496,20 +515,28 @@
     </style>
 </head>
 <body>
-    <!-- Header (đồng bộ với các tab khác) -->
-    <header class="header">
-        <div class="nav-container">
-            <a href="home.html" class="logo">🎓 LHU Learning</a>
-            <nav>
-                <ul class="nav-menu">
-                    <li><a href="home.html"><i class="fas fa-home"></i> Trang chủ</a></li>
-                    <li><a href="danhmuc.html"><i class="fas fa-flask"></i> Danh mục</a></li>
-                    <li><a href="tainguyen_page.html" class="active"><i class="fas fa-book"></i> Tài nguyên</a></li>
-                    <li><a href="about_us_page.html"><i class="fas fa-info-circle"></i> Về chúng tôi</a></li>
-                </ul>
-            </nav>
-        </div>
-    </header>
+    <!-- Header sẽ được nhúng tự động -->
+    <div id="navbar-placeholder"></div>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      fetch('navbar.html')
+        .then(response => response.text())
+        .then(data => {
+          document.getElementById('navbar-placeholder').innerHTML = data;
+          document.querySelectorAll('.nav-menu a').forEach(link => {
+            link.addEventListener('click', function(e) {
+              const href = this.getAttribute('href');
+              if (href && !href.startsWith('#')) {
+                e.preventDefault();
+                document.body.style.transition = 'opacity 0.5s cubic-bezier(.4,0,.2,1)';
+                document.body.style.opacity = 0;
+                setTimeout(() => { window.location.href = href; }, 400);
+              }
+            });
+          });
+        });
+    });
+    </script>
 
     <!-- Main Content -->
     <main class="main-content">
@@ -851,7 +878,10 @@
 
     <!-- Nhúng chatbot widget -->
     <script src="chatbot.js"></script>
-    <script src="https://cdn.botpress.cloud/webchat/v3.2/inject.js" defer></script>
     <script src="https://files.bpcontent.cloud/2025/07/18/06/20250718063825-OV9W5M1I.js" defer></script>
+    <!-- Nhúng chatbot widget -->
+    <link rel="stylesheet" href="chatbot_widget.css">
+    <div id="chatbot-widget-root"></div>
+    <script src="chatbot_widget.js"></script>
 </body>
 </html>
