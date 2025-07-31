@@ -36,6 +36,7 @@
     const chatLog = container.querySelector('#chatbot-log');
     const chatForm = container.querySelector('#chatbot-input-form');
     const userInput = container.querySelector('#chatbot-user-input');
+    // Không còn input file
 
 
     function appendMessage(sender, text) {
@@ -47,10 +48,28 @@
         avatar.className = 'chatbot-avatar';
         avatar.innerText = sender === 'user' ? '🧑' : '🤖';
 
+
         // Bubble
         const bubble = document.createElement('div');
         bubble.className = 'chatbot-bubble';
-        bubble.textContent = text;
+        let displayText = text;
+        if (sender === 'bot') {
+            // 1. Chuyển **Tiêu đề:** thành dòng mới với tiêu đề in đậm
+            displayText = displayText.replace(/\*\*(.*?)\*\*:/g, '<br><b>$1:</b>');
+            // 2. Chuyển **Tiêu đề** thành dòng mới với tiêu đề in đậm
+            displayText = displayText.replace(/\*\*(.*?)\*\*/g, '<br><b>$1</b>');
+            // 3. Chuyển ** ở đầu dòng thành bullet
+            displayText = displayText.replace(/(^|\n)\*\*\s*/g, '$1<br>• ');
+            // 4. Xoá các dấu * còn sót lại
+            displayText = displayText.replace(/\*/g, '');
+            // 5. Thay \n thành <br>
+            displayText = displayText.replace(/\n/g, '<br>');
+            // 6. Xoá <br> đầu nếu có
+            displayText = displayText.replace(/^<br>/, '');
+            bubble.innerHTML = displayText;
+        } else {
+            bubble.textContent = text;
+        }
 
         msg.appendChild(avatar);
         msg.appendChild(bubble);
