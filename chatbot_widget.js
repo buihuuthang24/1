@@ -66,7 +66,7 @@
         userInput.value = '';
         appendMessage('bot', 'Đang trả lời...');
         try {
-            const res = await fetch('http://localhost:5000/chat', {
+            const res = await fetch('https://1-production-7e62.up.railway.app/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ text })
