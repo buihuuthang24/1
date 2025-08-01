@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LHU - Tài nguyên Học tập & Nghiên cứu</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="responsive.css">
     <style>
         * {
             margin: 0;
@@ -537,6 +538,44 @@
         });
     });
     </script>
+
+    <!-- Header -->
+<header class="header">
+  <div class="nav-container">
+    <a href="home.html" class="logo">🎓 LHU Learning</a>
+    <button class="menu-toggle" aria-label="Mở menu" style="display:none;">&#9776;</button>
+    <nav>
+      <ul class="nav-menu">
+        <li><a href="home.html"><i class="fas fa-home"></i> Trang chủ</a></li>
+        <li><a href="danhmuc.html"><i class="fas fa-flask"></i> Danh mục</a></li>
+        <li><a href="tainguyen_page.html"><i class="fas fa-book"></i> Tài nguyên</a></li>
+        <li><a href="about_us_page.html"><i class="fas fa-info-circle"></i> Về chúng tôi</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Hamburger menu toggle cho mobile
+    var menuToggle = document.querySelector('.menu-toggle');
+    var navMenu = document.querySelector('.nav-menu');
+    function checkMobileMenu() {
+      if (window.innerWidth <= 600) {
+        menuToggle.style.display = 'block';
+        navMenu.classList.remove('show');
+      } else {
+        menuToggle.style.display = 'none';
+        navMenu.classList.remove('show');
+        navMenu.style.display = '';
+      }
+    }
+    checkMobileMenu();
+    window.addEventListener('resize', checkMobileMenu);
+    menuToggle.addEventListener('click', function() {
+      navMenu.classList.toggle('show');
+    });
+  });
+</script>
 
     <!-- Main Content -->
     <main class="main-content">
