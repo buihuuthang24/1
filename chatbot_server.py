@@ -57,15 +57,23 @@ def chat_api():
         # Nếu là JSON
         data = request.get_json()
         text = data.get('text', '') if data else ''
+        context = data.get('context', []) if data else []
         if not text:
             return jsonify({'error': 'No text provided'}), 400
     try:
         api_key = "AIzaSyBOIz1Yt5IDODA_U8sB1TvB5IusHnLxXZo"  # Hoặc lấy từ biến môi trường
         url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={api_key}"
+        # Tạo mảng contents từ context (nếu có)
+        contents = []
+        for msg in context:
+            if msg.get('role') == 'user':
+                contents.append({"role": "user", "parts": [{"text": msg.get('content', '')}]})
+            elif msg.get('role') == 'bot':
+                contents.append({"role": "model", "parts": [{"text": msg.get('content', '')}]})
+        # Thêm câu hỏi hiện tại vào cuối
+        contents.append({"role": "user", "parts": [{"text": text}]})
         payload = {
-            "contents": [
-                {"parts": [{"text": text}]}
-            ]
+            "contents": contents
         }
         headers = {"Content-Type": "application/json"}
         resp = requests.post(url, json=payload, headers=headers)

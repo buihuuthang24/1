@@ -5,6 +5,82 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Danh Mục Mô Phỏng - Nền Tảng Học Tập Tương Tác</title>
     <style>
+@media (max-width: 600px) {
+  .header {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    z-index: 1000 !important;
+    padding: 10px 8px !important;
+    font-size: 1.08rem !important;
+    height: 52px !important;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: #fff !important;
+    box-shadow: 0 2px 12px rgba(102,126,234,0.10) !important;
+    display: flex !important;
+    align-items: center !important;
+  }
+  body {
+    padding-top: 52px !important;
+  }
+  .nav-container {
+    position: relative !important;
+    width: 100vw !important;
+    padding-right: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+  }
+  .logo {
+    font-size: 1.5rem !important;
+    margin: 0 auto !important;
+    text-align: center !important;
+    flex: 1 !important;
+    color: #fff !important;
+    z-index: 1002 !important;
+  }
+  .menu-toggle {
+    display: block !important;
+    background: none;
+    border: none;
+    font-size: 2rem;
+    color: #fff;
+    margin-left: auto;
+    cursor: pointer;
+    z-index: 1001;
+  }
+  .nav-menu {
+    display: none !important;
+    flex-direction: column !important;
+    position: absolute !important;
+    top: 52px !important;
+    left: 0 !important;
+    width: 100vw !important;
+    background: #fff !important;
+    box-shadow: 0 4px 24px rgba(102,126,234,0.10) !important;
+    z-index: 999 !important;
+    padding: 0 !important;
+  }
+  .nav-menu.show {
+    display: flex !important;
+  }
+  .nav-menu li {
+    width: 100%;
+    border-bottom: 1px solid #e3eaf7;
+  }
+  .nav-menu a {
+    color: #764ba2 !important;
+    background: none !important;
+    border-radius: 0 !important;
+    font-size: 1.1rem !important;
+    padding: 1rem 2rem !important;
+    text-align: left !important;
+    width: 100% !important;
+    box-shadow: none !important;
+    border: none !important;
+    display: block !important;
+  }
+}
         * {
             margin: 0;
             padding: 0;
@@ -380,27 +456,43 @@
 <body style="opacity:1;transition:opacity 1.2s cubic-bezier(.4,0,.2,1);">
 
     <!-- Header sẽ được nhúng tự động -->
-    <div id="navbar-placeholder"></div>
+    <header class="header">
+      <div class="nav-container">
+        <a href="home.html" class="logo">🎓 LHU Learning</a>
+        <button class="menu-toggle" aria-label="Mở menu" style="display:none;">&#9776;</button>
+        <nav>
+          <ul class="nav-menu">
+            <li><a href="home.html"><i class="fas fa-home"></i> Trang chủ</a></li>
+            <li><a href="danhmuc.html"><i class="fas fa-flask"></i> Danh mục</a></li>
+            <li><a href="tainguyen_page.html"><i class="fas fa-book"></i> Tài nguyên</a></li>
+            <li><a href="about_us_page.html"><i class="fas fa-info-circle"></i> Về chúng tôi</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      fetch('navbar.html')
-        .then(response => response.text())
-        .then(data => {
-          document.getElementById('navbar-placeholder').innerHTML = data;
-          document.querySelectorAll('.nav-menu a').forEach(link => {
-            link.addEventListener('click', function(e) {
-              const href = this.getAttribute('href');
-              if (href && !href.startsWith('#')) {
-                e.preventDefault();
-                document.body.style.transition = 'opacity 0.5s cubic-bezier(.4,0,.2,1)';
-                document.body.style.opacity = 0;
-                setTimeout(() => { window.location.href = href; }, 400);
-              }
-            });
-          });
+      document.addEventListener('DOMContentLoaded', function() {
+        // Hamburger menu toggle cho mobile
+        var menuToggle = document.querySelector('.menu-toggle');
+        var navMenu = document.querySelector('.nav-menu');
+        function checkMobileMenu() {
+          if (window.innerWidth <= 600) {
+            menuToggle.style.display = 'block';
+            navMenu.classList.remove('show');
+          } else {
+            menuToggle.style.display = 'none';
+            navMenu.classList.remove('show');
+            navMenu.style.display = '';
+          }
+        }
+        checkMobileMenu();
+        window.addEventListener('resize', checkMobileMenu);
+        menuToggle.addEventListener('click', function() {
+          navMenu.classList.toggle('show');
         });
-    });
+      });
     </script>
+
     <div class="container" style="padding-top:110px">
         <div class="danhmuc-header">
             <h1>🎯 Danh Mục Mô Phỏng</h1>

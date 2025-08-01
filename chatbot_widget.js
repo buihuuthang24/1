@@ -36,7 +36,8 @@
     const chatLog = container.querySelector('#chatbot-log');
     const chatForm = container.querySelector('#chatbot-input-form');
     const userInput = container.querySelector('#chatbot-user-input');
-    // Không còn input file
+    // Lưu lịch sử hội thoại
+    let chatHistory = [];
 
 
     function appendMessage(sender, text) {
@@ -47,7 +48,6 @@
         const avatar = document.createElement('div');
         avatar.className = 'chatbot-avatar';
         avatar.innerText = sender === 'user' ? '🧑' : '🤖';
-
 
         // Bubble
         const bubble = document.createElement('div');
@@ -75,6 +75,12 @@
         msg.appendChild(bubble);
         chatLog.appendChild(msg);
         chatLog.scrollTop = chatLog.scrollHeight;
+
+        // Lưu vào lịch sử hội thoại (tối đa 10 cặp user-bot gần nhất)
+        if (sender === 'user' || sender === 'bot') {
+            chatHistory.push({ role: sender, content: text });
+            if (chatHistory.length > 20) chatHistory.shift();
+        }
     }
 
     chatForm.addEventListener('submit', async (e) => {
@@ -85,10 +91,11 @@
         userInput.value = '';
         appendMessage('bot', 'Đang trả lời...');
         try {
+            // Gửi cả lịch sử hội thoại lên backend
             const res = await fetch('https://1-production-7e62.up.railway.app/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ text })
+                body: JSON.stringify({ text, context: chatHistory.slice(-20) })
             });
             const data = await res.json();
             chatLog.lastChild.textContent = data.reply ? data.reply : 'Lỗi: ' + (data.error || 'Không nhận được trả lời');
